@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Frontend Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .response {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Laravel API Frontend Test</h1>
+        <p>This page tests the connection between frontend and backend API endpoints.</p>
+        
+        <!-- API Status Test -->
+        <div class="test-section">
+            <h2>1. API Status Test</h2>
+            <button onclick="testAPIStatus()">Test API Status</button>
+            <div id="api-status-result"></div>
+        </div>
+
+        <!-- Authentication Test -->
+        <div class="test-section">
+            <h2>2. Authentication Test</h2>
+            
+            <!-- Registration Form -->
+            <h3>Register New User</h3>
+            <div class="form-group">
+                <label for="reg-name">Name:</label>
+                <input type="text" id="reg-name" value="Frontend Test User">
+            </div>
+            <div class="form-group">
+                <label for="reg-email">Email:</label>
+                <input type="email" id="reg-email" value="frontend@test.com">
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Password:</label>
+                <input type="password" id="reg-password" value="password123">
+            </div>
+            <div class="form-group">
+                <label for="reg-role">Role:</label>
+                <select id="reg-role">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button onclick="registerUser()">Register User</button>
+            <div id="register-result"></div>
+
+            <!-- Login Form -->
+            <h3>Login User</h3>
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" value="frontend@test.com">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" value="password123">
+            </div>
+            <button onclick="loginUser()">Login User</button>
+            <div id="login-result"></div>
+        </div>
+
+        <!-- Authenticated Requests Test -->
+        <div class="test-section">
+            <h2>3. Authenticated Requests Test</h2>
+            <button onclick="getUserInfo()">Get User Info</button>
+            <button onclick="getDashboardStats()">Get Dashboard Stats</button>
+            <div id="auth-result"></div>
+        </div>
+
+        <!-- Patient Management Test -->
+        <div class="test-section">
+            <h2>4. Patient Management Test</h2>
+            <button onclick="getPatients()">Get All Patients</button>
+            <button onclick="createSamplePatient()">Create Sample Patient</button>
+            <div id="patient-result"></div>
+        </div>
+
+        <!-- Nutrition Assessment Test -->
+        <div class="test-section">
+            <h2>5. Nutrition Assessment Test</h2>
+            <button onclick="getNutritionAssessments()">Get Assessments</button>
+            <button onclick="getNutritionStats()">Get Nutrition Stats</button>
+            <div id="nutrition-result"></div>
+        </div>
+
+        <!-- Inventory Management Test -->
+        <div class="test-section">
+            <h2>6. Inventory Management Test</h2>
+            <button onclick="getInventoryItems()">Get Inventory Items</button>
+            <button onclick="getInventoryStats()">Get Inventory Stats</button>
+            <button onclick="getLowStockItems()">Get Low Stock Items</button>
+            <div id="inventory-result"></div>
+        </div>
+
+        <!-- Token Display -->
+        <div class="test-section">
+            <h2>Current Authentication Token</h2>
+            <div id="token-display" class="response">Not logged in</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8080/api';
+        let authToken = localStorage.getItem('authToken');
+
+        // Update token display
+        function updateTokenDisplay() {
+            const tokenDisplay = document.getElementById('token-display');
+            tokenDisplay.textContent = authToken ? `Token: ${authToken}` : 'Not logged in';
+        }
+
+        // Generic API request function
+        async function apiRequest(endpoint, method = 'GET', data = null, requiresAuth = false) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+
+            if (requiresAuth && authToken) {
+                options.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${result.message || 'Unknown error'}`);
+                }
+                
+                return { success: true, data: result };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Display result in a div
+        function displayResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            if (result.success) {
+                element.innerHTML = `<div class="success">Success!</div><div class="response">${JSON.stringify(result.data, null, 2)}</div>`;
+            } else {
+                element.innerHTML = `<div class="error">Error: ${result.error}</div>`;
+            }
+        }
+
+        // Test API Status
+        async function testAPIStatus() {
+            const result = await apiRequest('/test');
+            displayResult('api-status-result', result);
+        }
+
+        // Register User
+        async function registerUser() {
+            const data = {
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                password_confirmation: document.getElementById('reg-password').value,
+                role: document.getElementById('reg-role').value
+            };
+
+            const result = await apiRequest('/register', 'POST', data);
+            displayResult('register-result', result);
+        }
+
+        // Login User
+        async function loginUser() {
+            const data = {
+                email: document.getElementById('login-email').value,
+                password: document.getElementById('login-password').value
+            };
+
+            const result = await apiRequest('/login', 'POST', data);
+            
+            if (result.success && result.data.token) {
+                authToken = result.data.token;
+                localStorage.setItem('authToken', authToken);
+                updateTokenDisplay();
+            }
+            
+            displayResult('login-result', result);
+        }
+
+        // Get User Info
+        async function getUserInfo() {
+            const result = await apiRequest('/user', 'GET', null, true);
+            displayResult('auth-result', result);
+        }
+
+        // Get Dashboard Stats
+        async function getDashboardStats() {
+            const result = await apiRequest('/dashboard-stats', 'GET', null, true);
+            displayResult('auth-result', result);
+        }
+
+        // Get Patients
+        async function getPatients() {
+            const result = await apiRequest('/patients', 'GET', null, true);
+            displayResult('patient-result', result);
+        }
+
+        // Create Sample Patient
+        async function createSamplePatient() {
+            const data = {
+                name: 'Sample Patient',
+                date_of_birth: '2020-01-01',
+                gender: 'male',
+                guardian_name: 'Sample Guardian',
+                guardian_phone: '1234567890',
+                address: '123 Test Street'
+            };
+
+            const result = await apiRequest('/patients', 'POST', data, true);
+            displayResult('patient-result', result);
+        }
+
+        // Get Nutrition Assessments
+        async function getNutritionAssessments() {
+            const result = await apiRequest('/nutrition-assessments', 'GET', null, true);
+            displayResult('nutrition-result', result);
+        }
+
+        // Get Nutrition Stats
+        async function getNutritionStats() {
+            const result = await apiRequest('/nutrition-stats', 'GET', null, true);
+            displayResult('nutrition-result', result);
+        }
+
+        // Get Inventory Items
+        async function getInventoryItems() {
+            const result = await apiRequest('/inventory', 'GET', null, true);
+            displayResult('inventory-result', result);
+        }
+
+        // Get Inventory Stats
+        async function getInventoryStats() {
+            const result = await apiRequest('/inventory-stats', 'GET', null, true);
+            displayResult('inventory-result', result);
+        }
+
+        // Get Low Stock Items
+        async function getLowStockItems() {
+            const result = await apiRequest('/low-stock', 'GET', null, true);
+            displayResult('inventory-result', result);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTokenDisplay();
+        });
+    </script>
+</body>
+</html>

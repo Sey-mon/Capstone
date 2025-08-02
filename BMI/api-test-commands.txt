@@ -1,0 +1,48 @@
+# Laravel API Testing Commands
+
+## Basic API Test
+curl -X GET http://127.0.0.1:8080/api/test
+
+## Register User
+curl -X POST http://127.0.0.1:8080/api/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "password": "password123",
+    "password_confirmation": "password123",
+    "role": "user"
+  }'
+
+## Login User
+curl -X POST http://127.0.0.1:8080/api/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+
+## Get User Info (replace TOKEN with actual token from login)
+curl -X GET http://127.0.0.1:8080/api/user \
+  -H "Authorization: Bearer TOKEN"
+
+## Get Dashboard Stats
+curl -X GET http://127.0.0.1:8080/api/dashboard-stats \
+  -H "Authorization: Bearer TOKEN"
+
+## Get Patients
+curl -X GET http://127.0.0.1:8080/api/patients \
+  -H "Authorization: Bearer TOKEN"
+
+## Create Patient
+curl -X POST http://127.0.0.1:8080/api/patients \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "date_of_birth": "2020-01-01",
+    "gender": "male",
+    "guardian_name": "Jane Doe",
+    "guardian_phone": "1234567890",
+    "address": "123 Main St"
+  }'

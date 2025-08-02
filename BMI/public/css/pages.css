@@ -1,0 +1,152 @@
+/* BMI Test Pages Styles */
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    line-height: 1.6;
+}
+
+.setup-body {
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.status {
+    padding: 15px;
+    border-radius: 5px;
+    margin: 15px 0;
+}
+
+.success { 
+    background-color: #d4edda; 
+    border: 1px solid #c3e6cb; 
+    color: #155724; 
+}
+
+.info { 
+    background-color: #d1ecf1; 
+    border: 1px solid #bee5eb; 
+    color: #0c5460; 
+}
+
+.warning { 
+    background-color: #fff3cd; 
+    border: 1px solid #ffeaa7; 
+    color: #856404; 
+}
+
+.error { 
+    background-color: #f8d7da; 
+    border: 1px solid #f5c6cb; 
+    color: #721c24; 
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-primary { background-color: #007bff; }
+.btn-success { background-color: #28a745; }
+.btn-secondary { background-color: #6c757d; }
+.btn:hover { opacity: 0.8; }
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.feature-list li:before {
+    content: "✓ ";
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Setup page specific styles */
+.step {
+    background: #f8f9fa;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border-left: 5px solid #007bff;
+}
+
+.step h3 {
+    color: #007bff;
+    margin-top: 0;
+}
+
+.code {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    margin: 10px 0;
+    overflow-x: auto;
+}
+
+ol { 
+    padding-left: 20px; 
+}
+
+li { 
+    margin: 8px 0; 
+}
+
+/* Additional test page styles */
+.actions-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.test-users-info {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.test-users-info h4 {
+    margin-bottom: 10px;
+}
+
+.test-users-info p {
+    margin: 5px 0;
+}
+
+.version-info {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.version-info p {
+    margin: 5px 0;
+}
