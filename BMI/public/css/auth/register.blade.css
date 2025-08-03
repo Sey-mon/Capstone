@@ -1,0 +1,89 @@
+/* CSS extracted from: auth/register.blade.php */
+
+/* Inline styles */
+/* Inline: margin-top: 15px; */
+
+/* Tailwind classes found: */
+/* text-sm */
+/* text-gray-500 */
+
+/* Style tag content: */
+.form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
+        }
+        .form-section h3 {
+            margin: 0 0 15px 0;
+            color: #374151;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .role-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .role-btn {
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .role-btn:hover {
+            border-color: #3B82F6;
+            background: #f8fafc;
+        }
+        .role-btn.selected {
+            border-color: #3B82F6;
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        .role-btn strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .role-btn small {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .role-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+

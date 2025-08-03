@@ -26,13 +26,13 @@ body {
     margin-bottom: 30px;
 }
 
-.status {
+.status, .alert {
     padding: 15px;
     border-radius: 5px;
     margin: 15px 0;
 }
 
-.success { 
+.success, .alert-success { 
     background-color: #d4edda; 
     border: 1px solid #c3e6cb; 
     color: #155724; 
@@ -44,11 +44,18 @@ body {
     color: #0c5460; 
 }
 
-.warning { 
+.warning, .alert-warning { 
     background-color: #fff3cd; 
     border: 1px solid #ffeaa7; 
     color: #856404; 
 }
+
+.error, .alert-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+} 
+
 
 .error { 
     background-color: #f8d7da; 
@@ -149,4 +156,272 @@ li {
 
 .version-info p {
     margin: 5px 0;
+}
+
+/* Test System Styles */
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #10b981;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #10b981;
+    border: 2px solid #10b981;
+}
+
+.btn-outline:hover {
+    background: #10b981;
+    color: white;
+}
+
+.config-grid, .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.config-item, .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 4px;
+}
+
+.config-item label, .detail-item label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.config-item .value, .detail-item .value {
+    color: #059669;
+    font-family: monospace;
+    font-weight: 500;
+}
+
+.test-list {
+    list-style: none;
+    padding: 0;
+}
+
+.test-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.test-list li:last-child {
+    border-bottom: none;
+}
+
+.navigation {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.test-card.passed {
+    border-left: 4px solid #10b981;
+}
+
+.test-card.failed {
+    border-left: 4px solid #ef4444;
+}
+
+.status-icon {
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-passed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-failed {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.error-details {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 15px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+.summary-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 80px;
+}
+
+.stat-item.passed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.stat-item.failed {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.stat-item.total {
+    background: #ddd6fe;
+    color: #5b21b6;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.test-steps {
+    margin: 20px 0;
+    padding-left: 20px;
+}
+
+.test-steps li {
+    margin-bottom: 8px;
+}
+
+.test-buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .config-grid, .details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
 }

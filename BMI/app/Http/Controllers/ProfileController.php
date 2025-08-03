@@ -62,4 +62,13 @@ class ProfileController extends Controller
     {
         return view('profile.dashboard');
     }
+
+    /**
+     * Show the parent's children (patients)
+     */
+    public function myChildren()
+    {
+        $children = auth()->user()->children;
+        return view('profile.my-children', compact('children'));
+    }
 }

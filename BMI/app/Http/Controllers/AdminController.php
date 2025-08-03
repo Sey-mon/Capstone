@@ -8,12 +8,20 @@ use App\Models\Patient;
 use App\Models\NutritionAssessment;
 use App\Models\InventoryItem;
 use App\Models\InventoryTransaction;
+use App\Models\Barangay;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct()
+    {
+        // Middleware will be applied in routes
+    }
     /**
      * Show the admin dashboard
      */
@@ -54,12 +62,122 @@ class AdminController extends Controller
         return view('admin.users', compact('users'));
     }
 
+    public function approveUser(User $user)
+    {
+        if ($user->role === 'nutritionist' && $user->status === 'pending') {
+            $user->status = 'approved';
+            $user->save();
+            
+            // Send approval notification email
+            $user->notify(new \App\Notifications\NutritionistApprovedNotification());
+            
+            return redirect()->back()->with('success', 'Nutritionist approved successfully.');
+        }
+        
+        return redirect()->back()->with('error', 'Invalid user or status.');
+    }
+
+    public function rejectUser(User $user)
+    {
+        if ($user->role === 'nutritionist' && $user->status === 'pending') {
+            $user->status = 'rejected';
+            $user->save();
+            
+            // Optionally: Send rejection notification email
+            return redirect()->back()->with('success', 'Nutritionist rejected.');
+        }
+        
+        return redirect()->back()->with('error', 'Invalid user or status.');
+    }
+
     /**
      * Show patients management
      */
-    public function patients()
+    public function patients(Request $request)
     {
-        $patients = Patient::with('lastAssessment')->paginate(15);
+        $query = Patient::with(['lastAssessment', 'barangay']);
+        
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('barangay', 'like', "%{$search}%")
+                  ->orWhere('municipality', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($request->filled('barangay')) {
+            $query->where(function($q) use ($request) {
+                $q->where('barangay', $request->barangay)
+                  ->orWhereHas('barangay', function($subQuery) use ($request) {
+                      $subQuery->where('name', $request->barangay);
+                  });
+            });
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('admission_status', $request->status);
+        }
+        
+        // New filter: Nutrition Status
+        if ($request->filled('nutrition')) {
+            if ($request->nutrition === 'not_assessed') {
+                $query->whereDoesntHave('nutritionAssessments');
+            } else {
+                $query->whereHas('nutritionAssessments', function($q) use ($request) {
+                    $q->where('nutrition_status', $request->nutrition);
+                });
+            }
+        }
+        
+        // New filter: Age Group
+        if ($request->filled('age_group')) {
+            $ageRange = explode('-', $request->age_group);
+            if (count($ageRange) === 2) {
+                $minMonths = (int)$ageRange[0];
+                $maxMonths = (int)$ageRange[1];
+                $query->whereBetween('age_months', [$minMonths, $maxMonths]);
+            } elseif ($request->age_group === '60+') {
+                $query->where('age_months', '>=', 60);
+            }
+        }
+        
+        // New filter: Medical Conditions
+        if ($request->filled('medical')) {
+            switch ($request->medical) {
+                case 'tuberculosis':
+                    $query->where('has_tuberculosis', true);
+                    break;
+                case 'malaria':
+                    $query->where('has_malaria', true);
+                    break;
+                case 'congenital':
+                    $query->where('has_congenital_anomalies', true);
+                    break;
+                case 'edema':
+                    $query->where('has_edema', true);
+                    break;
+                case 'breastfeeding':
+                    $query->where('is_breastfeeding', true);
+                    break;
+                case '4ps':
+                    $query->where('is_4ps_beneficiary', true);
+                    break;
+            }
+        }
+        
+        // New filter: Gender
+        if ($request->filled('gender')) {
+            $query->where('sex', $request->gender);
+        }
+        
+        $patients = $query->paginate(15);
+        
+        // Debug: Check what barangays are in the patients table
+        $patientBarangays = Patient::distinct()->pluck('barangay')->filter()->values();
+        $barangayIds = Patient::distinct()->pluck('barangay_id')->filter()->values();
         
         $totalPatients = Patient::count();
         $malnourishedPatients = Patient::whereHas('nutritionAssessments', function($q) {
@@ -72,8 +190,8 @@ class AdminController extends Controller
             $q->where('nutrition_status', 'normal');
         })->count();
 
-        // Get unique municipalities for filter dropdown
-        $municipalities = Patient::distinct()->pluck('municipality')->filter()->sort()->values();
+        // Get barangays from barangays table for filter dropdown
+        $barangays = Barangay::orderBy('name')->pluck('name');
 
         return view('admin.patients', compact(
             'patients', 
@@ -81,7 +199,7 @@ class AdminController extends Controller
             'malnourishedPatients', 
             'atRiskPatients', 
             'normalPatients',
-            'municipalities'
+            'barangays'
         ));
     }
 
@@ -170,7 +288,6 @@ class AdminController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'height' => 'required|numeric|min:0',
             'weight' => 'required|numeric|min:0',
-            'muac' => 'nullable|numeric|min:0',
             'temperature' => 'nullable|numeric|min:0',
             'clinical_signs' => 'nullable|array',
             'notes' => 'nullable|string',
@@ -196,9 +313,9 @@ class AdminController extends Controller
         }
 
         // Determine nutritional status (simplified logic)
-        if ($bmi < 16 || ($data['muac'] && $data['muac'] < 11.5)) {
+        if ($bmi < 16) {
             $data['nutrition_status'] = 'severe_malnutrition';
-        } elseif ($bmi < 18.5 || ($data['muac'] && $data['muac'] < 12.5)) {
+        } elseif ($bmi < 18.5) {
             $data['nutrition_status'] = 'moderate_malnutrition';
         } else {
             $data['nutrition_status'] = 'normal';
@@ -228,10 +345,18 @@ class AdminController extends Controller
     public function inventory(Request $request)
     {
         $query = InventoryItem::query();
-        $barangays = InventoryItem::distinct()->pluck('barangay');
+        // Get barangays from facilities instead of inventory items
+        $barangays = \App\Models\Facility::with('barangay')
+            ->get()
+            ->pluck('barangay.name')
+            ->filter()
+            ->unique()
+            ->values();
         $selectedBarangay = $request->get('barangay');
         if ($selectedBarangay) {
-            $query->where('barangay', $selectedBarangay);
+            $query->whereHas('facility.barangay', function($q) use ($selectedBarangay) {
+                $q->where('name', $selectedBarangay);
+            });
         }
         if ($request->filled('search')) {
             $search = $request->get('search');
@@ -279,10 +404,10 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'barangay' => 'required|string|max:255',
+            'facility_id' => 'nullable|exists:facilities,id',
             'sku' => 'required|string|max:50|unique:inventory_items',
-            'category' => 'required|in:supplements,food,medicine,equipment,other',
-            'unit' => 'required|string|max:50',
+            'category' => 'required|in:therapeutic_food,supplements,medical_supplies,equipment,medications,medicine,other',
+            'unit' => 'required|in:pieces,boxes,packets,bottles,kg,grams,liters,ml,doses,vials',
             'current_stock' => 'required|numeric|min:0',
             'minimum_stock' => 'required|numeric|min:0',
             'expiry_date' => 'nullable|date|after:today',

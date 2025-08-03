@@ -23,7 +23,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 10,
                 'expiry_date' => Carbon::now()->addMonths(6),
                 'description' => '100mg Vitamin C tablets',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Rice',
@@ -34,7 +33,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 50,
                 'expiry_date' => Carbon::now()->addMonths(12),
                 'description' => 'Sack of white rice',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Paracetamol Syrup',
@@ -45,7 +43,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 5,
                 'expiry_date' => Carbon::now()->addMonths(3),
                 'description' => '120ml Paracetamol syrup for children',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Weighing Scale',
@@ -56,7 +53,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 2,
                 'expiry_date' => null,
                 'description' => 'Digital weighing scale',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Peanut Butter',
@@ -67,7 +63,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 10,
                 'expiry_date' => Carbon::now()->addMonths(8),
                 'description' => 'High-protein peanut butter',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Multivitamin Drops',
@@ -78,7 +73,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 5,
                 'expiry_date' => Carbon::now()->addMonths(4),
                 'description' => 'Multivitamin drops for infants',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Stethoscope',
@@ -89,7 +83,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 1,
                 'expiry_date' => null,
                 'description' => 'Standard stethoscope',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Antibiotic Ointment',
@@ -100,7 +93,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 5,
                 'expiry_date' => Carbon::now()->addMonths(10),
                 'description' => 'Topical antibiotic ointment',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Measuring Tape',
@@ -111,7 +103,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 3,
                 'expiry_date' => null,
                 'description' => 'Flexible measuring tape',
-                'barangay' => 'Barangay 3',
             ],
             [
                 'name' => 'Other Sample Item',
@@ -122,7 +113,6 @@ class InventoryItemSeeder extends Seeder
                 'minimum_stock' => 2,
                 'expiry_date' => Carbon::now()->addMonths(2),
                 'description' => 'Miscellaneous item',
-                'barangay' => 'Barangay 3',
             ],
         ];
 

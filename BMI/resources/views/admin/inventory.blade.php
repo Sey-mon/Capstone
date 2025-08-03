@@ -233,7 +233,7 @@
                             <div class="flex space-x-2">
                                 <a href="{{ route('admin.inventory.show', $item) }}" class="text-green-600 hover:text-green-900">View</a>
                                 <a href="{{ route('admin.inventory.edit', $item) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
-                                <form action="{{ route('admin.inventory.destroy', $item) }}" method="POST" style="display:inline;">
+                                <form action="{{ route('admin.inventory.destroy', $item) }}" method="POST" class="inline-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>

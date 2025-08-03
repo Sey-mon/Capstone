@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,6 +21,35 @@ Route::get('/setup', function () {
     return view('setup-database');
 });
 
+// Email and Registration Testing Routes
+Route::get('/test-email', [App\Http\Controllers\TestController::class, 'testEmail'])->name('test.email');
+Route::post('/test-email', [App\Http\Controllers\TestController::class, 'sendTestEmail'])->name('test.email.send');
+Route::get('/test-registration', [App\Http\Controllers\TestController::class, 'testRegistration'])->name('test.registration');
+Route::post('/test-user', [App\Http\Controllers\TestController::class, 'createTestUser'])->name('test.user.create');
+
+// Legal Pages
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+
+// Email Verification Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', [EmailVerificationController::class, 'show'])
+        ->name('verification.notice');
+    
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+});
+
+Route::get('/email/verify/{id}/{token}', [EmailVerificationController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
 Route::get('/dashboard', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();
@@ -36,10 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/my-children', [ProfileController::class, 'myChildren'])->name('profile.my-children');
 });
 
 // Admin Routes
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/users', [App\Http\Controllers\AdminController::class, 'users'])->name('users');
     Route::get('/patients', [App\Http\Controllers\AdminController::class, 'patients'])->name('patients');
@@ -60,6 +91,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/transactions', [App\Http\Controllers\AdminController::class, 'transactions'])->name('transactions');
     Route::post('/transactions', [App\Http\Controllers\AdminController::class, 'storeTransaction'])->name('transactions.store');
 
+    // Email Templates Management
+    Route::get('/email-templates', [App\Http\Controllers\Admin\EmailTemplateController::class, 'index'])->name('email-templates.index');
+    Route::get('/email-templates/{emailTemplate}/edit', [App\Http\Controllers\Admin\EmailTemplateController::class, 'edit'])->name('email-templates.edit');
+    Route::put('/email-templates/{emailTemplate}', [App\Http\Controllers\Admin\EmailTemplateController::class, 'update'])->name('email-templates.update');
+    Route::get('/email-templates/{emailTemplate}/preview', [App\Http\Controllers\Admin\EmailTemplateController::class, 'preview'])->name('email-templates.preview');
+    Route::get('/email-templates/create-default', [App\Http\Controllers\Admin\EmailTemplateController::class, 'createDefault'])->name('email-templates.create-default');
+
     // API Test Interface
     Route::get('/api-test', function () {
         return view('admin.api-test');
@@ -67,7 +105,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 // Nutritionist Routes
-Route::middleware(['auth', 'nutritionist'])->prefix('nutritionist')->name('nutritionist.')->group(function () {
+Route::middleware(['auth', 'nutritionist', 'verified'])->prefix('nutritionist')->name('nutritionist.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\NutritionistController::class, 'dashboard'])->name('dashboard');
     Route::get('/patients', [App\Http\Controllers\NutritionistController::class, 'patients'])->name('patients');
     Route::post('/patients', [App\Http\Controllers\NutritionistController::class, 'storePatient'])->name('patients.store');
@@ -88,6 +126,14 @@ Route::middleware(['auth', 'nutritionist'])->prefix('nutritionist')->name('nutri
     Route::post('/transactions', [App\Http\Controllers\NutritionistController::class, 'storeTransaction'])->name('transactions.store');
     Route::get('/transactions/log', [App\Http\Controllers\NutritionistController::class, 'inventoryLog'])->name('transactions.log');
 });
+
+// Nutritionist Application
+Route::get('/apply-nutritionist', [App\Http\Controllers\NutritionistApplicationController::class, 'showForm'])->name('nutritionist.apply');
+Route::post('/apply-nutritionist', [App\Http\Controllers\NutritionistApplicationController::class, 'submitForm'])->name('nutritionist.apply.submit');
+
+// Admin Nutritionist Approval
+Route::post('/admin/users/{user}/approve', [App\Http\Controllers\AdminController::class, 'approveUser'])->name('admin.users.approve');
+Route::post('/admin/users/{user}/reject', [App\Http\Controllers\AdminController::class, 'rejectUser'])->name('admin.users.reject');
 
 Route::middleware(['auth', 'parents'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\ProfileController::class, 'dashboard'])->name('dashboard');

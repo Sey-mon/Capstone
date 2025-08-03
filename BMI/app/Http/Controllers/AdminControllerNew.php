@@ -162,7 +162,6 @@ class AdminControllerNew extends Controller
             'assessment_date' => 'required|date',
             'weight' => 'required|numeric|min:0|max:500',
             'height' => 'required|numeric|min:0|max:300',
-            'muac' => 'nullable|numeric|min:0|max:50',
             'nutrition_status' => 'required|in:normal,mild_malnutrition,moderate_malnutrition,severe_malnutrition',
             'risk_level' => 'required|in:low,medium,high,critical',
             'symptoms' => 'nullable|string',

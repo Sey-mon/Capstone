@@ -13,14 +13,27 @@ class NutritionAssessment extends Model
         'weight',
         'height',
         'bmi',
-        'muac',
+        'edema',
+        'whz_score',
+        'waz_score',
+        'haz_score',
         'nutrition_status',
         'risk_level',
+        'confidence_score',
+        'api_response',
+        'model_version',
+        'assessment_method',
         'symptoms',
         'dietary_intake',
+        'feeding_practices',
+        'appetite',
+        'vomiting',
+        'diarrhea',
         'clinical_signs',
         'recommendations',
-        'next_assessment_date'
+        'next_assessment_date',
+        'follow_up_required',
+        'notes'
     ];
 
     protected $casts = [
@@ -29,7 +42,15 @@ class NutritionAssessment extends Model
         'weight' => 'decimal:2',
         'height' => 'decimal:2',
         'bmi' => 'decimal:2',
-        'muac' => 'decimal:1',
+        'whz_score' => 'decimal:2',
+        'waz_score' => 'decimal:2',
+        'haz_score' => 'decimal:2',
+        'confidence_score' => 'decimal:4',
+        'api_response' => 'array',
+        'edema' => 'boolean',
+        'vomiting' => 'boolean',
+        'diarrhea' => 'boolean',
+        'follow_up_required' => 'boolean',
     ];
 
     /**
@@ -50,6 +71,62 @@ class NutritionAssessment extends Model
 
     /**
      * Calculate BMI automatically
+     */
+    public function setBmiAttribute($value)
+    {
+        if ($this->weight && $this->height) {
+            $heightInMeters = $this->height / 100;
+            $this->attributes['bmi'] = round($this->weight / ($heightInMeters * $heightInMeters), 2);
+        } else {
+            $this->attributes['bmi'] = $value;
+        }
+    }
+
+    /**
+     * Get the Z-score category color for display
+     */
+    public function getCategoryColor($category)
+    {
+        switch ($category) {
+            case 'severe_wasting':
+            case 'severe_underweight':
+            case 'severe_stunting':
+            case 'severe_malnutrition':
+                return 'text-red-600 bg-red-50';
+            case 'moderate_wasting':
+            case 'moderate_underweight':
+            case 'moderate_stunting':
+            case 'moderate_malnutrition':
+                return 'text-orange-600 bg-orange-50';
+            case 'mild_wasting':
+            case 'mild_underweight':
+            case 'mild_stunting':
+            case 'mild_malnutrition':
+                return 'text-yellow-600 bg-yellow-50';
+            case 'normal':
+                return 'text-green-600 bg-green-50';
+            case 'overweight':
+            case 'obese':
+                return 'text-blue-600 bg-blue-50';
+            default:
+                return 'text-gray-600 bg-gray-50';
+        }
+    }
+
+    /**
+     * Get formatted Z-score display
+     */
+    public function getFormattedZScores()
+    {
+        return [
+            'whz' => $this->whz_score ? number_format((float)$this->whz_score, 2) : 'N/A',
+            'waz' => $this->waz_score ? number_format((float)$this->waz_score, 2) : 'N/A',
+            'haz' => $this->haz_score ? number_format((float)$this->haz_score, 2) : 'N/A',
+        ];
+    }
+
+    /**
+     * Calculate BMI static method
      */
     public static function calculateBMI($weight, $height)
     {

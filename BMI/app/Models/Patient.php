@@ -8,34 +8,65 @@ use Illuminate\Support\Carbon;
 class Patient extends Model
 {
     protected $fillable = [
-        'name',
-        'municipality',
-        'barangay',
-        'age_months',
+        'facility_id',
+        'patient_number',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'nickname',
         'sex',
+        'date_of_birth',
+        'age_months',
+        'place_of_birth',
+        'barangay_id',
+        'address',
+        'coordinates',
         'date_of_admission',
         'admission_status',
+        'admission_weight',
+        'admission_height',
+        'mother_name',
+        'mother_age',
+        'mother_education',
+        'father_name',
+        'father_age',
+        'father_education',
+        'guardian_name',
+        'guardian_relationship',
+        'guardian_contact',
         'total_household_members',
         'household_adults',
         'household_children',
         'is_twin',
         'is_4ps_beneficiary',
-        'weight',
-        'height',
+        'birth_weight',
+        'birth_length',
+        'gestational_age_weeks',
+        'delivery_type',
+        'birth_complications',
+        'current_weight',
+        'current_height',
         'whz_score',
+        'waz_score',
+        'haz_score',
         'is_breastfeeding',
+        'breastfeeding_duration_months',
+        'immunization_status',
+        'allergies',
         'has_tuberculosis',
         'has_malaria',
         'has_congenital_anomalies',
+        'congenital_anomalies_details',
         'other_medical_problems',
         'has_edema',
+        'medical_history',
         'contact_number',
-        'address',
-        'guardian_name',
-        'religion',
-        'guardian_contact',
+        'alternate_contact',
+        'emergency_contact',
         'status',
-        'medical_history'
+        'photo',
+        'created_by',
+        'parent_id'
     ];
 
     protected $casts = [
@@ -57,7 +88,20 @@ class Patient extends Model
      */
     public function getFullNameAttribute()
     {
-        return $this->name;
+        $name = $this->first_name;
+        if ($this->middle_name) {
+            $name .= ' ' . $this->middle_name;
+        }
+        $name .= ' ' . $this->last_name;
+        return $name;
+    }
+
+    /**
+     * Get the patient's name (alias for full name)
+     */
+    public function getNameAttribute()
+    {
+        return $this->getFullNameAttribute();
     }
 
     /**
@@ -126,5 +170,68 @@ class Patient extends Model
         if ($this->other_medical_problem) $problems[] = $this->other_medical_problem;
         
         return $problems;
+    }
+
+    /**
+     * Get the parent (user) of the patient
+     */
+    public function parent()
+    {
+        return $this->belongsTo(User::class, 'parent_id');
+    }
+
+    /**
+     * Get the barangay relationship
+     */
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
+
+    /**
+     * Calculate date of birth from age in months
+     */
+    public function getDateOfBirthAttribute()
+    {
+        if ($this->age_months) {
+            return Carbon::now()->subMonths($this->age_months);
+        }
+        return null;
+    }
+
+    /**
+     * Get age in years for display
+     */
+    public function getAgeInYearsAttribute()
+    {
+        if ($this->age_months) {
+            return floor($this->age_months / 12);
+        }
+        return 0;
+    }
+
+    /**
+     * Get remaining months after years
+     */
+    public function getRemainingMonthsAttribute()
+    {
+        if ($this->age_months) {
+            return $this->age_months % 12;
+        }
+        return 0;
+    }
+
+    /**
+     * Get formatted age display
+     */
+    public function getFormattedAgeAttribute()
+    {
+        $years = $this->age_in_years;
+        $months = $this->remaining_months;
+        
+        if ($years > 0) {
+            return $months > 0 ? "{$years} years, {$months} months" : "{$years} years";
+        }
+        return "{$months} months";
     }
 }

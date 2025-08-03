@@ -1,0 +1,80 @@
+/* Utility Classes for Inline Styles */
+
+/* Mix blend modes for SVG elements */
+.mix-blend-hard-light {
+    mix-blend-mode: hard-light;
+}
+
+.mix-blend-plus-darker {
+    mix-blend-mode: plus-darker;
+}
+
+/* Common inline form styles */
+.inline-form {
+    display: inline;
+}
+
+/* Center alignment utilities */
+.text-center {
+    text-align: center;
+}
+
+.center-block {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Display utilities */
+.hidden {
+    display: none;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+/* Spacing utilities */
+.margin-bottom-15 {
+    margin-bottom: 1.5rem;
+}
+
+.margin-left-8 {
+    margin-left: 8px;
+}
+
+/* Width utilities */
+.width-120 {
+    width: 120px;
+}
+
+/* Color utilities */
+.color-gray {
+    color: #888;
+}
+
+/* Fixed positioning utilities */
+.fixed-top-right {
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 10;
+}
+
+/* Logout section styling */
+.logout-divider {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Progress styling */
+.progress-text {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* Small button styling */
+.btn-small {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}

@@ -146,9 +146,6 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <div>Height: {{ $assessment->height }} cm</div>
                             <div>Weight: {{ $assessment->weight }} kg</div>
-                            @if($assessment->muac)
-                            <div class="text-xs text-gray-500">MUAC: {{ $assessment->muac }} cm</div>
-                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ number_format($assessment->bmi, 1) }}</div>
@@ -238,10 +235,6 @@
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">MUAC (cm) - Optional</label>
-                            <input type="number" name="muac" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Temperature (°C) - Optional</label>
                             <input type="number" name="temperature" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">

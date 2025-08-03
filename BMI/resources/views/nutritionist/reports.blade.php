@@ -110,17 +110,6 @@
                             </ul>
                         </div>
                         
-                        <div class="p-4 bg-green-50 rounded-lg">
-                            <h4 class="font-semibold mb-2">MUAC Guidelines</h4>
-                            <ul class="list-disc pl-5 space-y-1">
-                                <li>Severe Acute Malnutrition (SAM): MUAC &lt; 11.5 cm</li>
-                                <li>Moderate Acute Malnutrition (MAM): MUAC 11.5 - 12.5 cm</li>
-                                <li>At Risk: MUAC 12.6 - 13.5 cm</li>
-                                <li>Normal: MUAC &gt; 13.5 cm</li>
-                            </ul>
-                            <p class="mt-2 text-sm italic">Note: MUAC cutoffs vary by age group. These values are for children 6-59 months.</p>
-                        </div>
-                        
                         <div class="p-4 bg-blue-50 rounded-lg">
                             <h4 class="font-semibold mb-2">Recommended Follow-up Schedule</h4>
                             <ul class="list-disc pl-5 space-y-1">

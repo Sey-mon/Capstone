@@ -21,6 +21,19 @@
             <p class="text-2xl font-bold text-purple-600">{{ $totalInventory ?? 0 }}</p>
         </div>
     </div>
+
+    <!-- Data Analytics Visualization -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-bold mb-4">Malnutrition Status Distribution</h2>
+            <canvas id="malnutritionPieChart" height="200"></canvas>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-bold mb-4">Malnutrition Trends (Last 6 Months)</h2>
+            <canvas id="malnutritionLineChart" height="200"></canvas>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-lg font-bold mb-4">Malnutrition Trends</h2>
@@ -41,4 +54,91 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Pie Chart Data
+    const pieData = {
+        labels: [
+            'Normal',
+            'Mild Malnutrition',
+            'Moderate Malnutrition',
+            'Severe Malnutrition'
+        ],
+        datasets: [{
+            data: [
+                {{ $nutritionStats['normal'] ?? 0 }},
+                {{ $nutritionStats['mild_malnutrition'] ?? 0 }},
+                {{ $nutritionStats['moderate_malnutrition'] ?? 0 }},
+                {{ $nutritionStats['severe_malnutrition'] ?? 0 }}
+            ],
+            backgroundColor: [
+                '#34d399', // green-400
+                '#fde68a', // yellow-300
+                '#fdba74', // orange-300
+                '#f87171'  // red-400
+            ],
+            borderWidth: 1
+        }]
+    };
+    new Chart(document.getElementById('malnutritionPieChart'), {
+        type: 'pie',
+        data: pieData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Line Chart Data (Placeholder, replace with real trend data if available)
+    const lineData = {
+        labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        datasets: [
+            {
+                label: 'Severe',
+                data: [5, 7, 6, 4, 3, 2],
+                borderColor: '#f87171',
+                backgroundColor: 'rgba(248,113,113,0.2)',
+                tension: 0.4
+            },
+            {
+                label: 'Moderate',
+                data: [8, 9, 7, 6, 5, 4],
+                borderColor: '#fdba74',
+                backgroundColor: 'rgba(253,186,116,0.2)',
+                tension: 0.4
+            },
+            {
+                label: 'Mild',
+                data: [12, 10, 11, 13, 12, 11],
+                borderColor: '#fde68a',
+                backgroundColor: 'rgba(253,230,138,0.2)',
+                tension: 0.4
+            },
+            {
+                label: 'Normal',
+                data: [20, 22, 23, 25, 27, 30],
+                borderColor: '#34d399',
+                backgroundColor: 'rgba(52,211,153,0.2)',
+                tension: 0.4
+            }
+        ]
+    };
+    new Chart(document.getElementById('malnutritionLineChart'), {
+        type: 'line',
+        data: lineData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
 @endsection

@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-0">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Success Message -->
             @if(session('success'))
@@ -62,6 +62,17 @@
                 </div>
             </div>
             
+            <!-- Barangay Filter -->
+            <form method="GET" action="" class="mb-6 flex items-center gap-2">
+                <label for="barangay" class="text-sm font-medium text-gray-700">Filter by Barangay:</label>
+                <select name="barangay" id="barangay" onchange="this.form.submit()" class="rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                    <option value="">All Barangays</option>
+                    @foreach($barangays as $barangay)
+                        <option value="{{ $barangay }}" @if($selectedBarangay == $barangay) selected @endif>{{ $barangay }}</option>
+                    @endforeach
+                </select>
+            </form>
+
             <!-- Patient List -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -83,8 +94,13 @@
                                     @foreach($patients as $patient)
                                         <tr>
                                             <td class="py-2 px-4 border-b border-gray-200">{{ $patient->name }}</td>
-                                            <td class="py-2 px-4 border-b border-gray-200">{{ $patient->age }} years</td>
-                                            <td class="py-2 px-4 border-b border-gray-200">{{ ucfirst($patient->gender) }}</td>
+                                            <td class="py-2 px-4 border-b border-gray-200">
+                                                @php
+                                                    $years = $patient->age_months ? floor($patient->age_months / 12) : 'N/A';
+                                                @endphp
+                                                {{ $years }} years
+                                            </td>
+                                            <td class="py-2 px-4 border-b border-gray-200">{{ ucfirst($patient->sex) }}</td>
                                             <td class="py-2 px-4 border-b border-gray-200">
                                                 @if($patient->latestAssessment)
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
