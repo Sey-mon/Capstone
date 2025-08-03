@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Patient;
+use App\Models\Barangay;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,7 +20,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $barangays = Barangay::orderBy('name')->get();
+        return view('auth.register', compact('barangays'));
     }
 
     /**
@@ -31,71 +32,64 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            
-            // Patient information validation
-            'municipality' => ['required', 'string', 'max:255'],
-            'barangay' => ['required', 'string', 'max:255'],
-            'age_months' => ['required', 'integer', 'min:0', 'max:1200'], // 0-100 years in months
+            'phone_number' => ['nullable', 'string', 'max:20'],
+            'date_of_birth' => ['required', 'date', 'before:today'],
             'sex' => ['required', 'in:male,female'],
-            'date_of_admission' => ['required', 'date'],
-            'admission_status' => ['required', 'in:admitted,discharged,pending'],
-            'total_household_members' => ['required', 'integer', 'min:1'],
-            'household_adults' => ['required', 'integer', 'min:0'],
-            'household_children' => ['required', 'integer', 'min:0'],
+            'barangay_id' => ['required', 'exists:barangays,id'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'total_household_members' => ['required', 'integer', 'min:1', 'max:50'],
+            'household_adults' => ['required', 'integer', 'min:1', 'max:50'],
+            'household_children' => ['required', 'integer', 'min:0', 'max:50'],
             'is_twin' => ['boolean'],
             'is_4ps_beneficiary' => ['boolean'],
-            'weight' => ['nullable', 'numeric', 'min:0', 'max:500'], // kg
-            'height' => ['nullable', 'numeric', 'min:0', 'max:300'], // cm
-            'whz_score' => ['nullable', 'numeric', 'min:-5', 'max:5'],
-            'is_breastfeeding' => ['boolean'],
-            'has_tuberculosis' => ['boolean'],
-            'has_malaria' => ['boolean'],
-            'has_congenital_anomalies' => ['boolean'],
-            'other_medical_problems' => ['nullable', 'string', 'max:1000'],
-            'has_edema' => ['boolean'],
-            'religion' => ['required', 'string', 'max:255'],
+            'terms_accepted' => ['required', 'accepted'],
         ]);
+
+        // Validate household numbers
+        if ($request->household_adults + $request->household_children != $request->total_household_members) {
+            return back()->withErrors([
+                'total_household_members' => 'Total household members must equal the sum of adults and children.'
+            ])->withInput();
+        }
 
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'barangay' => $request->barangay,
+            'phone_number' => $request->phone_number,
+            'date_of_birth' => $request->date_of_birth,
+            'sex' => $request->sex,
+            'barangay_id' => $request->barangay_id,
+            'address' => $request->address,
+            'role' => 'parent_guardian',
+            'status' => 'email_pending',
+            'is_active' => true,
+            'email_verification_attempts' => 0,
         ]);
 
-        // Create patient record
-        Patient::create([
-            'name' => $request->name,
-            'municipality' => $request->municipality,
-            'barangay' => $request->barangay,
-            'age_months' => $request->age_months,
-            'sex' => $request->sex,
-            'date_of_admission' => $request->date_of_admission,
-            'admission_status' => $request->admission_status,
+        // Store additional household information in session for patient creation
+        $request->session()->put('household_info', [
             'total_household_members' => $request->total_household_members,
             'household_adults' => $request->household_adults,
             'household_children' => $request->household_children,
             'is_twin' => $request->boolean('is_twin'),
             'is_4ps_beneficiary' => $request->boolean('is_4ps_beneficiary'),
-            'weight' => $request->weight,
-            'height' => $request->height,
-            'whz_score' => $request->whz_score,
-            'is_breastfeeding' => $request->boolean('is_breastfeeding'),
-            'has_tuberculosis' => $request->boolean('has_tuberculosis'),
-            'has_malaria' => $request->boolean('has_malaria'),
-            'has_congenital_anomalies' => $request->boolean('has_congenital_anomalies'),
-            'other_medical_problems' => $request->other_medical_problems,
-            'has_edema' => $request->boolean('has_edema'),
-            'religion' => $request->religion,
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Send email verification
+        $user->sendEmailVerificationNotification();
 
-        return redirect(route('dashboard', absolute: false));
+        // Don't auto-login the user - they need to verify email first
+        return redirect()->route('verification.notice')
+            ->with('status', "Registration successful! Your Employee ID is: {$user->employee_id}. Please check your email to verify your account.");
     }
 }

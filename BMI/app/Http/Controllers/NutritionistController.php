@@ -7,11 +7,18 @@ use App\Models\Patient;
 use App\Models\InventoryItem;
 use App\Models\InventoryTransaction;
 use App\Models\User;
+use App\Services\NutritionAssessmentApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NutritionistController extends AdminController
 {
+    protected $nutritionApiService;
+
+    public function __construct(NutritionAssessmentApiService $nutritionApiService)
+    {
+        $this->nutritionApiService = $nutritionApiService;
+    }
     /**
      * Show the nutritionist dashboard.
      */
@@ -65,17 +72,24 @@ class NutritionistController extends AdminController
         ]);
     }
     
-    /**
-     * Show all patients (specific to nutritionist permissions)
-     */
-    public function patients()
-    {
-        $patients = Patient::with('latestAssessment')->get();
-        
-        return view('nutritionist.patients', [
-            'patients' => $patients
-        ]);
+/**
+ * Show patients view
+ */
+public function patients(Request $request)
+{
+    $barangays = \App\Models\Barangay::orderBy('name')->pluck('name', 'id');
+    $selectedBarangay = $request->get('barangay');
+    $query = Patient::with('latestAssessment');
+    if ($selectedBarangay) {
+        $query->where('barangay_id', $selectedBarangay);
     }
+    $patients = $query->get();
+    return view('nutritionist.patients', [
+        'patients' => $patients,
+        'barangays' => $barangays,
+        'selectedBarangay' => $selectedBarangay,
+    ]);
+}
     
     /**
      * Show nutrition assessments view
@@ -92,32 +106,89 @@ class NutritionistController extends AdminController
     }
     
     /**
-     * Store a new nutrition assessment
+     * Store a new nutrition assessment with API integration
      */
     public function storeNutrition(Request $request)
     {
         // Validate request
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
-            'weight' => 'required|numeric',
-            'height' => 'required|numeric',
-            'muac' => 'nullable|numeric',
-            'nutrition_status' => 'required|in:normal,mild_malnutrition,moderate_malnutrition,severe_malnutrition',
+            'weight' => 'required|numeric|min:0.1',
+            'height' => 'required|numeric|min:10',
+            'edema' => 'boolean',
             'clinical_signs' => 'nullable|string',
-            'next_assessment_date' => 'nullable|date',
+            'symptoms' => 'nullable|string',
+            'dietary_intake' => 'nullable|string',
+            'feeding_practices' => 'nullable|string',
+            'appetite' => 'nullable|in:poor,fair,good',
+            'vomiting' => 'boolean',
+            'diarrhea' => 'boolean',
+            'recommendations' => 'nullable|string',
+            'next_assessment_date' => 'nullable|date|after:today',
             'notes' => 'nullable|string'
         ]);
+
+        // Get patient information
+        $patient = Patient::find($validated['patient_id']);
         
         // Calculate BMI
         $weight = $validated['weight'];
-        $height = $validated['height'] / 100; // Convert cm to m
-        $bmi = $weight / ($height * $height);
+        $height = $validated['height'];
+        $heightInMeters = $height / 100; // Convert cm to m
+        $bmi = $weight / ($heightInMeters * $heightInMeters);
         $validated['bmi'] = round($bmi, 2);
-        
+
+        // Get API assessment using age in months from patient record
+        $hasEdema = $validated['edema'] ?? false;
+        $apiAssessment = $this->nutritionApiService->assessChild(
+            $validated['weight'],
+            $validated['height'],
+            $patient->age_months, // Use age_months from patient record
+            $patient->sex, // Use sex from patient record
+            $hasEdema
+        );
+
+        // Add API results to validated data
+        $validated = array_merge($validated, [
+            'assessed_by' => Auth::id(),
+            'assessment_date' => now(),
+            'whz_score' => $apiAssessment['whz_score'],
+            'waz_score' => $apiAssessment['waz_score'],
+            'haz_score' => $apiAssessment['haz_score'],
+            'confidence_score' => $apiAssessment['confidence_score'],
+            'api_response' => $apiAssessment['api_response'],
+            'model_version' => $apiAssessment['model_version'],
+            'assessment_method' => $apiAssessment['assessment_method'],
+            'edema' => $hasEdema,
+            'vomiting' => $validated['vomiting'] ?? false,
+            'diarrhea' => $validated['diarrhea'] ?? false,
+            'follow_up_required' => $this->determineFollowUpRequired($apiAssessment['overall_assessment'])
+        ]);
+
+        // Determine nutrition status based on API assessment
+        $validated['nutrition_status'] = $apiAssessment['overall_assessment'];
+
         // Create assessment
-        NutritionAssessment::create($validated);
-        
-        return redirect()->route('nutritionist.nutrition')->with('success', 'Nutrition assessment added successfully');
+        $assessment = NutritionAssessment::create($validated);
+
+        $message = 'Nutrition assessment added successfully with Z-score analysis';
+        if (!($apiAssessment['api_available'] ?? true)) {
+            $message .= ' (API unavailable - using fallback calculation)';
+        }
+
+        return redirect()->route('nutritionist.nutrition')->with('success', $message);
+    }
+
+    /**
+     * Determine if follow-up is required based on assessment
+     */
+    private function determineFollowUpRequired($overallAssessment)
+    {
+        return in_array($overallAssessment, [
+            'severe_malnutrition',
+            'moderate_malnutrition',
+            'mild_malnutrition'
+        ]);
     }
     
     /**
@@ -182,112 +253,15 @@ class NutritionistController extends AdminController
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female',
             'address' => 'nullable|string',
-            'guardian_name' => 'nullable|string|max:255',
-            'guardian_contact' => 'nullable|string|max:255',
-            'medical_history' => 'nullable|string'
+            'barangay' => 'nullable|string',
+            'contact_number' => 'nullable|string',
         ]);
         
         // Create patient
         Patient::create($validated);
-        
         return redirect()->route('nutritionist.patients')->with('success', 'Patient added successfully');
     }
-
-    /**
-     * Show inventory management
-     */
-    public function inventory(Request $request)
-    {
-        $query = InventoryItem::query();
-        $query->where('barangay', Auth::user()->barangay);
-        $barangays = InventoryItem::distinct()->pluck('barangay');
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%$search%")
-                  ->orWhere('code', 'like', "%$search%")
-                  ->orWhere('sku', 'like', "%$search%")
-                  ->orWhere('description', 'like', "%$search%")
-                  ;
-            });
-        }
-        if ($request->filled('category')) {
-            $query->where('category', $request->get('category'));
-        }
-        if ($request->filled('unit')) {
-            $query->where('unit', $request->get('unit'));
-        }
-        if ($request->filled('stock_status')) {
-            if ($request->get('stock_status') === 'in_stock') {
-                $query->where('current_stock', '>', 0)->whereColumn('current_stock', '>', 'minimum_stock');
-            } elseif ($request->get('stock_status') === 'low_stock') {
-                $query->whereColumn('current_stock', '<=', 'minimum_stock')->where('current_stock', '>', 0);
-            } elseif ($request->get('stock_status') === 'out_of_stock') {
-                $query->where('current_stock', '<=', 0);
-            }
-        }
-        $inventoryItems = $query->paginate(15);
-        $totalItems = $inventoryItems->total();
-        $inStockItems = $inventoryItems->where('current_stock', '>', 0)->count();
-        $lowStockItems = $inventoryItems->where('current_stock', '<=', 'minimum_stock')->where('current_stock', '>', 0)->count();
-        $outOfStockItems = $inventoryItems->where('current_stock', '<=', 0)->count();
-        $expiringSoon = $inventoryItems->where('expiry_date', '<=', now()->addDays(30))->whereNotNull('expiry_date');
-        return view('nutritionist.inventory', compact(
-            'inventoryItems', 
-            'totalItems', 
-            'inStockItems', 
-            'lowStockItems', 
-            'outOfStockItems', 
-            'expiringSoon',
-            'barangays'
-        ));
-    }
-
-    /**
-     * Show a specific inventory item
-     */
-    public function showInventory(InventoryItem $inventory)
-    {
-        $inventory->load('transactions.user');
-        return view('nutritionist.inventory.show', compact('inventory'));
-    }
-
-    /**
-     * Show edit form for a specific inventory item
-     */
-    public function editInventory(InventoryItem $inventory)
-    {
-        return view('nutritionist.inventory.edit', compact('inventory'));
-    }
-
-    /**
-     * Update a specific inventory item
-     */
-    public function updateInventory(Request $request, InventoryItem $inventory)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:inventory_items,code,' . $inventory->id,
-            'category' => 'required|in:supplements,food,medicine,equipment,other',
-            'unit' => 'required|string|max:50',
-            'current_stock' => 'required|numeric|min:0',
-            'minimum_stock' => 'required|numeric|min:0',
-            'expiry_date' => 'nullable|date|after:today',
-            'description' => 'nullable|string'
-        ]);
-        $inventory->update($request->all());
-        return redirect()->route('nutritionist.inventory.show', $inventory)->with('success', 'Item updated successfully.');
-    }
-
-    /**
-     * Destroy a specific inventory item
-     */
-    public function destroyInventory(InventoryItem $inventory)
-    {
-        $inventory->delete();
-        return redirect()->route('nutritionist.inventory')->with('success', 'Item deleted successfully.');
-    }
-
+    
     /**
      * Store a new inventory item
      */
@@ -363,19 +337,19 @@ class NutritionistController extends AdminController
         if ($validated['type'] === 'in') {
             $newStock = $item->current_stock + $validated['quantity'];
         } else {
-            $newStock = max(0, $item->current_stock - $validated['quantity']);
+            $newStock = $item->current_stock - $validated['quantity'];
         }
         
-        $data['stock_after'] = $newStock;
-        
-        // Update item stock
         $item->update(['current_stock' => $newStock]);
         
         InventoryTransaction::create($data);
-
+        
         return redirect()->route('nutritionist.transactions')->with('success', 'Transaction recorded successfully.');
     }
 
+    /**
+     * Show inventory log
+     */
     public function inventoryLog(Request $request)
     {
         $transactions = InventoryTransaction::with(['inventoryItem', 'user'])

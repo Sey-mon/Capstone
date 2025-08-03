@@ -35,14 +35,13 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
+// Public email verification notice page
+Route::get('email/verify', EmailVerificationPromptController::class)
+    ->name('verification.notice');
+
 Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
-
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-
+    // Removed conflicting verification route - using custom one in web.php
+    
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('verification.send');

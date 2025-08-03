@@ -206,7 +206,7 @@
                             <button onclick="recordTransaction({{ $item->id }}, '{{ e($item->name) }}')" class="text-blue-600 hover:text-blue-900 mr-3">Stock In/Out</button>
                             <a href="{{ route('nutritionist.inventory.show', $item) }}" class="text-green-600 hover:text-green-900 mr-2">View</a>
                             <a href="{{ route('nutritionist.inventory.edit', $item) }}" class="text-blue-600 hover:text-blue-900 mr-2">Edit</a>
-                            <form action="{{ route('nutritionist.inventory.destroy', $item) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('nutritionist.inventory.destroy', $item) }}" method="POST" class="inline-form">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>

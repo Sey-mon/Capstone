@@ -99,7 +99,7 @@ php artisan db:seed
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 30px;">
+        <div class="center-block">
             <a href="{{ url('/home') }}" class="btn btn-primary">← Back to Home</a>
             <a href="{{ url('/test') }}" class="btn btn-success">Test Page</a>
         </div>

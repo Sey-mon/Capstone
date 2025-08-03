@@ -70,20 +70,74 @@
 
     <!-- Search and Filter -->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="flex items-center mb-4">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900">Filter Patients</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Search Patients</label>
-                <input type="text" id="searchPatients" placeholder="Search by name, municipality..." 
+                <input type="text" id="searchPatients" placeholder="Search by name, barangay..." 
                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <p class="text-xs text-gray-500 mt-1">Search by patient name or location</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Municipality</label>
-                <select id="municipalityFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Municipalities</option>
-                    @foreach($municipalities ?? [] as $municipality)
-                        <option value="{{ $municipality }}">{{ $municipality }}</option>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Barangay</label>
+                <select id="barangayFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All Barangays</option>
+                    @foreach($barangays ?? [] as $barangay)
+                        <option value="{{ $barangay }}">{{ $barangay }}</option>
                     @endforeach
                 </select>
+                <p class="text-xs text-gray-500 mt-1">Filter by specific barangay</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nutrition Status</label>
+                <select id="nutritionFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All Statuses</option>
+                    <option value="normal">Normal</option>
+                    <option value="mild_malnutrition">Mild Malnutrition</option>
+                    <option value="moderate_malnutrition">Moderate Malnutrition</option>
+                    <option value="severe_malnutrition">Severe Malnutrition</option>
+                    <option value="not_assessed">Not Assessed</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Based on latest assessment</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Age Group</label>
+                <select id="ageGroupFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All Ages</option>
+                    <option value="0-6">0-6 months (Infants)</option>
+                    <option value="6-12">6-12 months</option>
+                    <option value="12-24">12-24 months (Toddlers)</option>
+                    <option value="24-60">24-60 months (Preschoolers)</option>
+                    <option value="60+">60+ months (School Age)</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Filter by age in months</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
+                <select id="medicalFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All Patients</option>
+                    <option value="tuberculosis">Has Tuberculosis</option>
+                    <option value="malaria">Has Malaria</option>
+                    <option value="congenital">Has Congenital Anomalies</option>
+                    <option value="edema">Has Edema</option>
+                    <option value="breastfeeding">Breastfeeding</option>
+                    <option value="4ps">4P's Beneficiary</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Filter by specific conditions</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                <select id="genderFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All Genders</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Filter by patient gender</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Admission Status</label>
@@ -93,15 +147,13 @@
                     <option value="discharged">Discharged</option>
                     <option value="pending">Pending</option>
                 </select>
+                <p class="text-xs text-gray-500 mt-1">Current admission status</p>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">4P's Beneficiary</label>
-                <select id="beneficiaryFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All</option>
-                    <option value="1">Yes</option>
-                    <option value="0">No</option>
-                </select>
-            </div>
+        </div>
+        <div class="mt-4 flex justify-end">
+            <button onclick="clearFilters()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                Clear All Filters
+            </button>
         </div>
     </div>
 
@@ -127,18 +179,22 @@
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
                                     <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                        <span class="text-sm font-medium text-gray-700">{{ substr($patient->name, 0, 1) }}</span>
+                                        <span class="text-sm font-medium text-gray-700">{{ substr($patient->name ?? 'N/A', 0, 1) }}</span>
                                     </div>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $patient->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ ucfirst($patient->sex) }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $patient->name ?? 'No Name' }}</div>
+                                    <div class="text-sm text-gray-500">{{ ucfirst($patient->sex ?? 'Unknown') }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>{{ $patient->municipality }}</div>
-                            <div class="text-gray-500">{{ $patient->barangay }}</div>
+                            @if($patient->municipality || $patient->barangay)
+                                <div>{{ $patient->municipality ?? 'N/A' }}</div>
+                                <div class="text-gray-500">{{ $patient->barangay ?? ($patient->barangay->name ?? 'N/A') }}</div>
+                            @else
+                                <div class="text-gray-400">Location not set</div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $patient->age_months }} months<br>
@@ -386,13 +442,59 @@ function deletePatient(patientId) {
 
 // Search and filter functionality
 document.getElementById('searchPatients').addEventListener('input', filterPatients);
-document.getElementById('municipalityFilter').addEventListener('change', filterPatients);
+document.getElementById('barangayFilter').addEventListener('change', filterPatients);
+document.getElementById('nutritionFilter').addEventListener('change', filterPatients);
+document.getElementById('ageGroupFilter').addEventListener('change', filterPatients);
+document.getElementById('medicalFilter').addEventListener('change', filterPatients);
+document.getElementById('genderFilter').addEventListener('change', filterPatients);
 document.getElementById('statusFilter').addEventListener('change', filterPatients);
-document.getElementById('beneficiaryFilter').addEventListener('change', filterPatients);
 
 function filterPatients() {
-    // Implement filtering logic
-    console.log('Filtering patients...');
+    const search = document.getElementById('searchPatients').value;
+    const barangay = document.getElementById('barangayFilter').value;
+    const nutrition = document.getElementById('nutritionFilter').value;
+    const ageGroup = document.getElementById('ageGroupFilter').value;
+    const medical = document.getElementById('medicalFilter').value;
+    const gender = document.getElementById('genderFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    
+    if (search) params.append('search', search);
+    if (barangay) params.append('barangay', barangay);
+    if (nutrition) params.append('nutrition', nutrition);
+    if (ageGroup) params.append('age_group', ageGroup);
+    if (medical) params.append('medical', medical);
+    if (gender) params.append('gender', gender);
+    if (status) params.append('status', status);
+    
+    // Redirect to filtered results
+    const currentUrl = window.location.pathname;
+    const queryString = params.toString();
+    const redirectUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+    
+    window.location.href = redirectUrl;
+}
+
+function clearFilters() {
+    const search = document.getElementById('searchPatients').value;
+    const barangay = document.getElementById('barangayFilter').value;
+    const nutrition = document.getElementById('nutritionFilter').value;
+    const ageGroup = document.getElementById('ageGroupFilter').value;
+    const medical = document.getElementById('medicalFilter').value;
+    const gender = document.getElementById('genderFilter').value;
+    const status = document.getElementById('statusFilter').value;
+
+    if (search) document.getElementById('searchPatients').value = '';
+    if (barangay) document.getElementById('barangayFilter').value = '';
+    if (nutrition) document.getElementById('nutritionFilter').value = '';
+    if (ageGroup) document.getElementById('ageGroupFilter').value = '';
+    if (medical) document.getElementById('medicalFilter').value = '';
+    if (gender) document.getElementById('genderFilter').value = '';
+    if (status) document.getElementById('statusFilter').value = '';
+
+    filterPatients(); // Apply filters after clearing
 }
 </script>
 @endsection

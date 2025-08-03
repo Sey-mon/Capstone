@@ -98,6 +98,48 @@ body {
     accent-color: #22c55e;
 }
 
+/* Fieldset and Legend Styles */
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+legend {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    display: block;
+    width: 100%;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    display: block;
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-item input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #22c55e;
+}
+
 .checkbox-container label {
     color: #666;
     font-size: 0.9rem;

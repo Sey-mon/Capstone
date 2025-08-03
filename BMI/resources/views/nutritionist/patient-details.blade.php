@@ -65,7 +65,6 @@
                                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Weight (kg)</th>
                                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Height (cm)</th>
                                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">BMI</th>
-                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">MUAC</th>
                                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Follow-up</th>
                                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
@@ -78,7 +77,6 @@
                                             <td class="py-2 px-4 border-b border-gray-200">{{ $assessment->weight }}</td>
                                             <td class="py-2 px-4 border-b border-gray-200">{{ $assessment->height }}</td>
                                             <td class="py-2 px-4 border-b border-gray-200">{{ $assessment->bmi }}</td>
-                                            <td class="py-2 px-4 border-b border-gray-200">{{ $assessment->muac ?? 'N/A' }}</td>
                                             <td class="py-2 px-4 border-b border-gray-200">
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                     @if($assessment->nutrition_status == 'severe_malnutrition') bg-red-100 text-red-800

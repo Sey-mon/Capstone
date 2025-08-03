@@ -19,40 +19,44 @@ class MalnutritionSystemSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'System Administrator',
+                'first_name' => 'System',
+                'last_name' => 'Administrator',
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
-                'facility_name' => 'Main Health Center',
                 'license_number' => 'ADM001',
                 'phone_number' => '+1234567890',
                 'is_active' => true,
+                'status' => 'approved',
             ]
         );
 
         User::firstOrCreate(
             ['email' => 'nutritionist@example.com'],
             [
-                'name' => 'Dr. Maria Santos',
+                'first_name' => 'Dr. Maria',
+                'last_name' => 'Santos',
                 'email' => 'nutritionist@example.com',
                 'password' => Hash::make('password'),
                 'role' => 'nutritionist',
-                'facility_name' => 'Nutrition Center',
                 'license_number' => 'NUT001',
                 'phone_number' => '+1234567891',
                 'is_active' => true,
+                'status' => 'approved',
             ]
         );
 
         User::firstOrCreate(
             ['email' => 'parent@example.com'],
             [
-                'name' => 'Juan Dela Cruz',
+                'first_name' => 'Juan',
+                'last_name' => 'Dela Cruz',
                 'email' => 'parent@example.com',
                 'password' => Hash::make('password'),
-                'role' => 'parents',
+                'role' => 'parent_guardian',
                 'phone_number' => '+1234567892',
                 'is_active' => true,
+                'status' => 'approved',
             ]
         );
     }

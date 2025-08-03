@@ -13,8 +13,8 @@ class MalnutritionService
 
     public function __construct()
     {
-        $this->apiUrl = config('services.malnutrition.api_url', 'http://127.0.0.1:8000');
-        $this->timeout = config('services.malnutrition.timeout', 30);
+        $this->apiUrl = config('services.malnutrition.api_url', 'http://127.0.0.1:8080');
+        $this->timeout = config('services.malnutrition.timeout', 10); // Reduced timeout
     }
 
     /**
@@ -24,6 +24,8 @@ class MalnutritionService
     {
         try {
             $response = Http::timeout($this->timeout)
+                ->connectTimeout(5) // 5 second connection timeout
+                ->retry(2, 1000) // Retry 2 times with 1 second delay
                 ->get("{$this->apiUrl}/health");
 
             return $response->successful() ? $response->json() : false;
@@ -34,12 +36,39 @@ class MalnutritionService
     }
 
     /**
+     * Test connection to the API
+     */
+    public function testConnection()
+    {
+        try {
+            $response = Http::timeout(5)
+                ->connectTimeout(2)
+                ->get($this->apiUrl);
+
+            return [
+                'success' => true,
+                'status' => $response->status(),
+                'url' => $this->apiUrl,
+                'response' => $response->body()
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'url' => $this->apiUrl
+            ];
+        }
+    }
+
+    /**
      * Assess a single patient
      */
     public function assessPatient(array $patientData)
     {
         try {
             $response = Http::timeout($this->timeout)
+                ->connectTimeout(5)
+                ->retry(2, 1000)
                 ->post("{$this->apiUrl}/assess", $patientData);
 
             if ($response->successful()) {
@@ -53,7 +82,7 @@ class MalnutritionService
             
             return [
                 'success' => false,
-                'error' => 'Assessment failed: ' . $response->json()['detail'] ?? 'Unknown error',
+                'error' => 'Assessment failed: ' . ($response->json()['detail'] ?? 'Unknown error'),
                 'status_code' => $response->status()
             ];
 

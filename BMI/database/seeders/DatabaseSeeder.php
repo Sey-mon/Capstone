@@ -14,8 +14,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            \Database\Seeders\BarangaySeeder::class,
             \Database\Seeders\AdminUserSeeder::class,
+            \Database\Seeders\PatientSeeder::class,
             \Database\Seeders\InventoryItemSeeder::class,
+            \Database\Seeders\SystemSettingsSeeder::class,
+            \Database\Seeders\EmailTemplatesSeeder::class,
         ]);
     }
 }
