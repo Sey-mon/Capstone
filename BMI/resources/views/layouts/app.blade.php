@@ -20,7 +20,7 @@
     <body class="font-sans antialiased">
         <div class="flex min-h-screen bg-gray-100">
             <!-- Sidebar -->
-            <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full top-0 left-0 z-30 flex flex-col">
+            <aside class="w-48 sidebar-responsive bg-white border-r border-gray-200 flex-shrink-0 fixed h-full top-0 left-0 z-30 flex flex-col">
                 <div class="flex items-center justify-center h-16 border-b border-gray-200">
                     <a href="{{ route('dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-green-600" />
@@ -54,7 +54,7 @@
                 </nav>
             </aside>
             <!-- Main Content Area with Header -->
-            <div class="flex-1 ml-64">
+            <div class="flex-1 ml-48 main-content-responsive">
                 <nav class="bg-green-600 border-b border-green-700 text-white">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div class="flex justify-between h-16 items-center">
@@ -100,7 +100,7 @@
                         </div>
                     </header>
                 @endisset
-                <main>
+                <main class="min-h-screen">
                     @if (isset($slot))
                         {{ $slot }}
                     @else

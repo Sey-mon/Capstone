@@ -1,134 +1,420 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Patient Management') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-0">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Success Message -->
-            @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <span class="block sm:inline">{{ session('success') }}</span>
+@section('content')
+<div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-800 mb-4 lg:mb-0">Children Management</h1>
+        <button onclick="openModal('addPatientModal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 w-full lg:w-auto">
+            Add New Child
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-lg p-4">
+            <div class="flex items-center">
+                <div class="p-2 rounded-full bg-blue-100 text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
                 </div>
-            @endif
-            
-            <!-- Add Patient Form -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900">
-                    <h3 class="font-semibold text-lg mb-4 text-green-600">Add New Patient</h3>
-                    <form method="POST" action="{{ route('nutritionist.patients.store') }}" class="space-y-4">
-                        @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-700">Patient Name</label>
-                                <input type="text" name="name" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50" required>
-                            </div>
-                            <div>
-                                <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                                <input type="date" name="date_of_birth" id="date_of_birth" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50" required>
-                            </div>
-                            <div>
-                                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
-                                <select name="gender" id="gender" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50" required>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                                <input type="text" name="address" id="address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50">
-                            </div>
-                            <div>
-                                <label for="guardian_name" class="block text-sm font-medium text-gray-700">Guardian Name</label>
-                                <input type="text" name="guardian_name" id="guardian_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50">
-                            </div>
-                            <div>
-                                <label for="guardian_contact" class="block text-sm font-medium text-gray-700">Guardian Contact</label>
-                                <input type="text" name="guardian_contact" id="guardian_contact" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="medical_history" class="block text-sm font-medium text-gray-700">Medical History</label>
-                            <textarea name="medical_history" id="medical_history" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"></textarea>
-                        </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Add Patient
-                            </button>
-                        </div>
-                    </form>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">Total Children</h3>
+                    <p class="text-xl font-bold text-blue-600">{{ $patients->count() }}</p>
                 </div>
             </div>
-            
-            <!-- Barangay Filter -->
-            <form method="GET" action="" class="mb-6 flex items-center gap-2">
-                <label for="barangay" class="text-sm font-medium text-gray-700">Filter by Barangay:</label>
-                <select name="barangay" id="barangay" onchange="this.form.submit()" class="rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50">
-                    <option value="">All Barangays</option>
-                    @foreach($barangays as $barangay)
-                        <option value="{{ $barangay }}" @if($selectedBarangay == $barangay) selected @endif>{{ $barangay }}</option>
-                    @endforeach
-                </select>
-            </form>
+        </div>
 
-            <!-- Patient List -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="font-semibold text-lg mb-4 text-green-600">Patient List</h3>
-                    
-                    @if($patients->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full bg-white">
-                                <thead>
-                                    <tr>
-                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Age</th>
-                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Gender</th>
-                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($patients as $patient)
-                                        <tr>
-                                            <td class="py-2 px-4 border-b border-gray-200">{{ $patient->name }}</td>
-                                            <td class="py-2 px-4 border-b border-gray-200">
-                                                @php
-                                                    $years = $patient->age_months ? floor($patient->age_months / 12) : 'N/A';
-                                                @endphp
-                                                {{ $years }} years
-                                            </td>
-                                            <td class="py-2 px-4 border-b border-gray-200">{{ ucfirst($patient->sex) }}</td>
-                                            <td class="py-2 px-4 border-b border-gray-200">
-                                                @if($patient->latestAssessment)
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        @if($patient->latestAssessment->nutrition_status == 'severe_malnutrition') bg-red-100 text-red-800
-                                                        @elseif($patient->latestAssessment->nutrition_status == 'moderate_malnutrition') bg-orange-100 text-orange-800
-                                                        @elseif($patient->latestAssessment->nutrition_status == 'mild_malnutrition') bg-yellow-100 text-yellow-800
-                                                        @else bg-green-100 text-green-800 @endif">
-                                                        {{ ucwords(str_replace('_', ' ', $patient->latestAssessment->nutrition_status ?? 'Not Assessed')) }}
-                                                    </span>
-                                                @else
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                        Not Assessed
-                                                    </span>
-                                                @endif
-                                            </td>
-                                            <td class="py-2 px-4 border-b border-gray-200">
-                                                <a href="{{ route('nutritionist.patients.show', $patient->id) }}" class="text-green-600 hover:text-green-800">View</a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p class="text-gray-600">No patients found.</p>
-                    @endif
+        <div class="bg-white rounded-lg shadow-lg p-4">
+            <div class="flex items-center">
+                <div class="p-2 rounded-full bg-red-100 text-red-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">At Risk</h3>
+                    <p class="text-xl font-bold text-red-600">{{ $patients->where('lastAssessment.nutrition_status', 'severe_malnutrition')->count() + $patients->where('lastAssessment.nutrition_status', 'moderate_malnutrition')->count() }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-4">
+            <div class="flex items-center">
+                <div class="p-2 rounded-full bg-yellow-100 text-yellow-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">Mild Risk</h3>
+                    <p class="text-xl font-bold text-yellow-600">{{ $patients->where('lastAssessment.nutrition_status', 'mild_malnutrition')->count() }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-4">
+            <div class="flex items-center">
+                <div class="p-2 rounded-full bg-green-100 text-green-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">Normal</h3>
+                    <p class="text-xl font-bold text-green-600">{{ $patients->where('lastAssessment.nutrition_status', 'normal')->count() }}</p>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+        <div class="flex items-center mb-4">
+            <svg class="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+            <h3 class="text-sm font-semibold text-gray-900">Filter Children</h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Search</label>
+                <input type="text" id="searchPatients" placeholder="Search..." 
+                       class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Barangay</label>
+                <select id="barangayFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
+                    @foreach($barangays ?? [] as $barangay)
+                        <option value="{{ $barangay }}" @if($selectedBarangay == $barangay) selected @endif>{{ $barangay }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                <select id="nutritionFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
+                    <option value="normal">Normal</option>
+                    <option value="mild_malnutrition">Mild</option>
+                    <option value="moderate_malnutrition">Moderate</option>
+                    <option value="severe_malnutrition">Severe</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Gender</label>
+                <select id="genderFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-end">
+            <button onclick="clearFilters()" class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                Clear Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Children Table -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Child</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admission</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Household</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="patientsTable">
+                    @forelse($patients as $patient)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-8 w-8">
+                                    <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <span class="text-xs font-medium text-gray-700">{{ substr($patient->name ?? 'N/A', 0, 1) }}</span>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ $patient->name ?? 'No Name' }}</div>
+                                    <div class="text-xs text-gray-500">{{ ucfirst($patient->sex ?? 'Unknown') }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            @if($patient->municipality || $patient->barangay)
+                                <div class="text-xs">{{ $patient->municipality ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500">{{ $patient->barangay ?? ($patient->barangay->name ?? 'N/A') }}</div>
+                            @else
+                                <div class="text-xs text-gray-400">Location not set</div>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div class="text-xs">{{ $patient->age_months }} months</div>
+                            <div class="text-xs text-gray-500">({{ $patient->age_years }} years)</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div class="text-xs">{{ $patient->date_of_admission->format('M d, Y') }}</div>
+                            <span class="px-1 inline-flex text-xs leading-4 font-semibold rounded-full 
+                                {{ $patient->admission_status === 'admitted' ? 'bg-green-100 text-green-800' : 
+                                   ($patient->admission_status === 'discharged' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                {{ ucfirst($patient->admission_status) }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div class="text-xs">{{ $patient->total_household_members }} total</div>
+                            <div class="text-xs text-gray-500">{{ $patient->household_adults }}A, {{ $patient->household_children }}C</div>
+                            @if($patient->is_4ps_beneficiary)
+                                <span class="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">4P's</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            @if($patient->lastAssessment)
+                                @php
+                                    $status = $patient->lastAssessment->nutrition_status;
+                                    $statusColors = [
+                                        'normal' => 'bg-green-100 text-green-800',
+                                        'mild_malnutrition' => 'bg-blue-100 text-blue-800',
+                                        'moderate_malnutrition' => 'bg-yellow-100 text-yellow-800',
+                                        'severe_malnutrition' => 'bg-red-100 text-red-800'
+                                    ];
+                                @endphp
+                                <span class="px-1 inline-flex text-xs leading-4 font-semibold rounded-full {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
+                                    {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                </span>
+                            @else
+                                <span class="px-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    Not assessed
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="{{ route('nutritionist.patients.show', $patient) }}" class="text-green-600 hover:text-green-900 text-xs">View</a>
+                                <a href="{{ route('nutritionist.nutrition') }}?patient_id={{ $patient->id }}" class="text-blue-600 hover:text-blue-900 text-xs">Assess</a>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-4 py-3 text-center text-gray-500 text-sm">No children found</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Child Modal -->
+<div id="addPatientModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Add New Child</h3>
+            </div>
+            <form id="addPatientForm" action="{{ route('nutritionist.patients.store') }}" method="POST">
+                @csrf
+                <div class="px-6 py-4 space-y-4">
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Sex</label>
+                            <select name="sex" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="">Select Sex</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Municipality</label>
+                            <input type="text" name="municipality" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Barangay</label>
+                            <input type="text" name="barangay" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Age (months)</label>
+                            <input type="number" name="age_months" required min="0" max="1200" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date of Admission</label>
+                            <input type="date" name="date_of_admission" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Admission Status</label>
+                        <select name="admission_status" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="">Select Status</option>
+                            <option value="admitted">Admitted</option>
+                            <option value="discharged">Discharged</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Household Information -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Household</label>
+                            <input type="number" name="total_household_members" required min="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Adults</label>
+                            <input type="number" name="household_adults" required min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Children</label>
+                            <input type="number" name="household_children" required min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_twin" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="ml-2 text-sm text-gray-700">Twin</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_4ps_beneficiary" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="ml-2 text-sm text-gray-700">4P's Beneficiary</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Nutritional Measurements -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+                            <input type="number" name="weight" step="0.01" min="0" max="500" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
+                            <input type="number" name="height" step="0.01" min="0" max="300" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">WHZ Score</label>
+                            <input type="number" name="whz_score" step="0.01" min="-5" max="5" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_breastfeeding" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="ml-2 text-sm text-gray-700">Currently Breastfeeding</span>
+                        </label>
+                    </div>
+                    
+                    <!-- Medical Problems -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="has_tuberculosis" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">Tuberculosis</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="has_malaria" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">Malaria</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="has_congenital_anomalies" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">Congenital Anomalies</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="has_edema" value="1" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">Edema</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Other Medical Problems</label>
+                        <textarea name="other_medical_problems" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Describe any other medical problems..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+                            <input type="text" name="religion" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addPatientModal')" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Add Child</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+// Search and filter functionality
+document.getElementById('searchPatients').addEventListener('input', filterPatients);
+document.getElementById('barangayFilter').addEventListener('change', filterPatients);
+document.getElementById('nutritionFilter').addEventListener('change', filterPatients);
+document.getElementById('genderFilter').addEventListener('change', filterPatients);
+
+function filterPatients() {
+    const search = document.getElementById('searchPatients').value;
+    const barangay = document.getElementById('barangayFilter').value;
+    const nutrition = document.getElementById('nutritionFilter').value;
+    const gender = document.getElementById('genderFilter').value;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    
+    if (search) params.append('search', search);
+    if (barangay) params.append('barangay', barangay);
+    if (nutrition) params.append('nutrition', nutrition);
+    if (gender) params.append('gender', gender);
+    
+    // Redirect to filtered results
+    const currentUrl = window.location.pathname;
+    const queryString = params.toString();
+    const redirectUrl = queryString ? `${currentUrl}?${queryString}` : currentUrl;
+    
+    window.location.href = redirectUrl;
+}
+
+function clearFilters() {
+    const search = document.getElementById('searchPatients').value;
+    const barangay = document.getElementById('barangayFilter').value;
+    const nutrition = document.getElementById('nutritionFilter').value;
+    const gender = document.getElementById('genderFilter').value;
+
+    if (search) document.getElementById('searchPatients').value = '';
+    if (barangay) document.getElementById('barangayFilter').value = '';
+    if (nutrition) document.getElementById('nutritionFilter').value = '';
+    if (gender) document.getElementById('genderFilter').value = '';
+
+    filterPatients(); // Apply filters after clearing
+}
+</script>
+@endsection

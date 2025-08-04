@@ -78,3 +78,124 @@
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
 }
+
+/* Responsive layout utilities */
+.min-h-screen {
+    min-height: 100vh;
+}
+
+/* Responsive sidebar adjustments */
+@media (max-width: 1024px) {
+    .sidebar-responsive {
+        width: 12rem; /* 192px */
+    }
+    
+    .main-content-responsive {
+        margin-left: 12rem; /* 192px */
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar-responsive {
+        width: 10rem; /* 160px */
+    }
+    
+    .main-content-responsive {
+        margin-left: 10rem; /* 160px */
+    }
+}
+
+@media (max-width: 640px) {
+    .sidebar-responsive {
+        width: 8rem; /* 128px */
+    }
+    
+    .main-content-responsive {
+        margin-left: 8rem; /* 128px */
+    }
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .text-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .grid-mobile {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .grid-tablet {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1025px) {
+    .grid-desktop {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Flexible table utilities */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+    min-width: 100%;
+}
+
+/* Responsive text sizing */
+.text-xs-mobile {
+    font-size: 0.75rem;
+}
+
+.text-sm-mobile {
+    font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+    .text-xs-mobile {
+        font-size: 0.875rem;
+    }
+    
+    .text-sm-mobile {
+        font-size: 1rem;
+    }
+}
+
+/* Flexible spacing */
+.space-y-responsive > * + * {
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .space-y-responsive > * + * {
+        margin-top: 1.5rem;
+    }
+}
+
+/* Responsive padding */
+.p-responsive {
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .p-responsive {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .p-responsive {
+        padding: 2rem;
+    }
+}

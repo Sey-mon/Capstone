@@ -24,26 +24,60 @@ class NutritionistController extends AdminController
      */
     public function dashboard()
     {
-        // Get total patients count
-        $totalPatients = Patient::count();
+        // Get total patients count (children)
+        $totalChildren = Patient::count();
         
-        // Get total assessments count
-        $totalAssessments = NutritionAssessment::count();
+        // Get patients by nutrition status
+        $atRisk = Patient::whereHas('nutritionAssessments', function($q) {
+            $q->whereIn('nutrition_status', ['moderate_malnutrition', 'severe_malnutrition']);
+        })->count();
         
-        // Get patients with critical nutrition status
-        $criticalCases = NutritionAssessment::where('nutrition_status', 'severe_malnutrition')
-            ->orderBy('assessment_date', 'desc')
-            ->with('patient')
-            ->take(5)
-            ->get();
+        $recovered = Patient::whereHas('nutritionAssessments', function($q) {
+            $q->where('nutrition_status', 'normal');
+        })->count();
         
-        // Get nutrition status distribution
+        $totalInventory = InventoryItem::count();
+        
+        // Get nutrition status distribution for charts
         $nutritionStats = [
             'normal' => NutritionAssessment::where('nutrition_status', 'normal')->count(),
             'mild_malnutrition' => NutritionAssessment::where('nutrition_status', 'mild_malnutrition')->count(),
             'moderate_malnutrition' => NutritionAssessment::where('nutrition_status', 'moderate_malnutrition')->count(),
             'severe_malnutrition' => NutritionAssessment::where('nutrition_status', 'severe_malnutrition')->count(),
         ];
+        
+        // Get monthly trend data for the last 6 months
+        $monthlyTrends = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthName = $date->format('M');
+            
+            $monthlyTrends[$monthName] = [
+                'normal' => NutritionAssessment::where('nutrition_status', 'normal')
+                    ->whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->count(),
+                'mild_malnutrition' => NutritionAssessment::where('nutrition_status', 'mild_malnutrition')
+                    ->whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->count(),
+                'moderate_malnutrition' => NutritionAssessment::where('nutrition_status', 'moderate_malnutrition')
+                    ->whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->count(),
+                'severe_malnutrition' => NutritionAssessment::where('nutrition_status', 'severe_malnutrition')
+                    ->whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->count(),
+            ];
+        }
+        
+        // Get critical cases
+        $criticalCases = Patient::whereHas('nutritionAssessments', function($q) {
+            $q->where('nutrition_status', 'severe_malnutrition');
+        })->with(['lastAssessment', 'barangay'])
+        ->take(5)
+        ->get();
         
         // Get assessments needing follow-up
         $followupNeeded = NutritionAssessment::whereDate('next_assessment_date', '<=', now()->addDays(7))
@@ -60,10 +94,13 @@ class NutritionistController extends AdminController
             ->count();
             
         return view('nutritionist.dashboard', [
-            'totalPatients' => $totalPatients,
-            'totalAssessments' => $totalAssessments,
-            'criticalCases' => $criticalCases,
+            'totalChildren' => $totalChildren,
+            'atRisk' => $atRisk,
+            'recovered' => $recovered,
+            'totalInventory' => $totalInventory,
             'nutritionStats' => $nutritionStats,
+            'monthlyTrends' => $monthlyTrends,
+            'criticalCases' => $criticalCases,
             'followupNeeded' => $followupNeeded,
             'totalInventoryItems' => $totalInventoryItems,
             'lowStockItems' => $lowStockItems,
@@ -77,13 +114,49 @@ class NutritionistController extends AdminController
  */
 public function patients(Request $request)
 {
-    $barangays = \App\Models\Barangay::orderBy('name')->pluck('name', 'id');
-    $selectedBarangay = $request->get('barangay');
-    $query = Patient::with('latestAssessment');
-    if ($selectedBarangay) {
-        $query->where('barangay_id', $selectedBarangay);
+    $query = Patient::with(['lastAssessment', 'barangay']);
+    
+    // Apply filters
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('barangay', 'like', "%{$search}%")
+              ->orWhere('municipality', 'like', "%{$search}%");
+        });
     }
+    
+    if ($request->filled('barangay')) {
+        $query->where(function($q) use ($request) {
+            $q->where('barangay', $request->barangay)
+              ->orWhereHas('barangay', function($subQuery) use ($request) {
+                  $subQuery->where('name', $request->barangay);
+              });
+        });
+    }
+    
+    // Filter by nutrition status
+    if ($request->filled('nutrition')) {
+        if ($request->nutrition === 'not_assessed') {
+            $query->whereDoesntHave('nutritionAssessments');
+        } else {
+            $query->whereHas('nutritionAssessments', function($q) use ($request) {
+                $q->where('nutrition_status', $request->nutrition);
+            });
+        }
+    }
+    
+    // Filter by gender
+    if ($request->filled('gender')) {
+        $query->where('sex', $request->gender);
+    }
+    
     $patients = $query->get();
+    
+    // Get barangays for filter dropdown
+    $barangays = \App\Models\Barangay::orderBy('name')->pluck('name');
+    $selectedBarangay = $request->get('barangay');
+    
     return view('nutritionist.patients', [
         'patients' => $patients,
         'barangays' => $barangays,
@@ -104,6 +177,8 @@ public function patients(Request $request)
             'patients' => $patients
         ]);
     }
+    
+
     
     /**
      * Store a new nutrition assessment with API integration
@@ -247,19 +322,45 @@ public function patients(Request $request)
      */
     public function storePatient(Request $request)
     {
-        // Validate request
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:male,female',
-            'address' => 'nullable|string',
-            'barangay' => 'nullable|string',
-            'contact_number' => 'nullable|string',
+            'municipality' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
+            'age_months' => 'required|integer|min:0|max:1200',
+            'sex' => 'required|in:male,female',
+            'date_of_admission' => 'required|date',
+            'admission_status' => 'required|in:admitted,discharged,pending',
+            'total_household_members' => 'required|integer|min:1',
+            'household_adults' => 'required|integer|min:0',
+            'household_children' => 'required|integer|min:0',
+            'is_twin' => 'boolean',
+            'is_4ps_beneficiary' => 'boolean',
+            'weight' => 'nullable|numeric|min:0|max:500',
+            'height' => 'nullable|numeric|min:0|max:300',
+            'whz_score' => 'nullable|numeric|min:-5|max:5',
+            'is_breastfeeding' => 'boolean',
+            'has_tuberculosis' => 'boolean',
+            'has_malaria' => 'boolean',
+            'has_congenital_anomalies' => 'boolean',
+            'other_medical_problems' => 'nullable|string|max:1000',
+            'has_edema' => 'boolean',
+            'religion' => 'required|string|max:255',
         ]);
+
+        $patientData = $request->all();
         
-        // Create patient
-        Patient::create($validated);
-        return redirect()->route('nutritionist.patients')->with('success', 'Patient added successfully');
+        // Convert checkbox values to boolean
+        $patientData['is_twin'] = $request->boolean('is_twin');
+        $patientData['is_4ps_beneficiary'] = $request->boolean('is_4ps_beneficiary');
+        $patientData['is_breastfeeding'] = $request->boolean('is_breastfeeding');
+        $patientData['has_tuberculosis'] = $request->boolean('has_tuberculosis');
+        $patientData['has_malaria'] = $request->boolean('has_malaria');
+        $patientData['has_congenital_anomalies'] = $request->boolean('has_congenital_anomalies');
+        $patientData['has_edema'] = $request->boolean('has_edema');
+
+        Patient::create($patientData);
+
+        return redirect()->route('nutritionist.patients')->with('success', 'Child added successfully.');
     }
     
     /**

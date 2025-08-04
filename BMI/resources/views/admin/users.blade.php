@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">System Users</h1>
-    <div class="mb-2 text-gray-600">Showing {{ $users->count() }} of {{ $users->total() }} users</div>
+    <div class="mb-2 text-gray-600">Total users: {{ $users->total() }}</div>
     <div class="bg-white rounded-lg shadow-lg overflow-x-auto">
         <table class="min-w-full table-auto">
             <thead>
@@ -102,7 +102,35 @@
                 @endforeach
             </tbody>
         </table>
-        <div class="p-4">{{ $users->links() }}</div>
+        <div class="p-4 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-700">
+                    Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} users
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm text-gray-600">Per page:</label>
+                    <select onchange="changePerPage(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
+                        <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                        <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                {{ $users->appends(request()->query())->links() }}
+            </div>
+        </div>
+        </div>
     </div>
 </div>
+<script>
+function changePerPage(perPage) {
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('per_page', perPage);
+    currentUrl.searchParams.delete('page'); // Reset to first page when changing per page
+    window.location.href = currentUrl.toString();
+}
+</script>
 @endsection

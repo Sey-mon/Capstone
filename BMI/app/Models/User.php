@@ -243,6 +243,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
+     * Check if user is a parent (alias for isParentGuardian)
+     */
+    public function isParent(): bool
+    {
+        return $this->role === 'parent_guardian';
+    }
+    
+    /**
      * Check if user is a nutritionist
      */
     public function isNutritionist(): bool

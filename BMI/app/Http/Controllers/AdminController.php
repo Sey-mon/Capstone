@@ -56,9 +56,10 @@ class AdminController extends Controller
     /**
      * Show users management
      */
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::paginate(15);
+        $perPage = $request->get('per_page', 15);
+        $users = User::paginate($perPage);
         return view('admin.users', compact('users'));
     }
 
@@ -173,7 +174,8 @@ class AdminController extends Controller
             $query->where('sex', $request->gender);
         }
         
-        $patients = $query->paginate(15);
+        $perPage = $request->get('per_page', 15);
+        $patients = $query->paginate($perPage);
         
         // Debug: Check what barangays are in the patients table
         $patientBarangays = Patient::distinct()->pluck('barangay')->filter()->values();

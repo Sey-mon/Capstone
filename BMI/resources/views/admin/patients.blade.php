@@ -1,158 +1,148 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Patient Management</h1>
-        <button onclick="openModal('addPatientModal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200">
+<div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-800 mb-4 lg:mb-0">Patient Management</h1>
+        <button onclick="openModal('addPatientModal')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 w-full lg:w-auto">
             Add New Patient
         </button>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-lg p-4">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 rounded-full bg-blue-100 text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-700">Total Patients</h3>
-                    <p class="text-2xl font-bold text-blue-600">{{ $totalPatients }}</p>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">Total Patients</h3>
+                    <p class="text-xl font-bold text-blue-600">{{ $totalPatients }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="bg-white rounded-lg shadow-lg p-4">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-red-100 text-red-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 rounded-full bg-red-100 text-red-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-700">Malnourished</h3>
-                    <p class="text-2xl font-bold text-red-600">{{ $malnourishedPatients }}</p>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">Malnourished</h3>
+                    <p class="text-xl font-bold text-red-600">{{ $malnourishedPatients }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="bg-white rounded-lg shadow-lg p-4">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 rounded-full bg-yellow-100 text-yellow-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-700">At Risk</h3>
-                    <p class="text-2xl font-bold text-yellow-600">{{ $atRiskPatients }}</p>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">At Risk</h3>
+                    <p class="text-xl font-bold text-yellow-600">{{ $atRiskPatients }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="bg-white rounded-lg shadow-lg p-4">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-2 rounded-full bg-green-100 text-green-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-700">Normal</h3>
-                    <p class="text-2xl font-bold text-green-600">{{ $normalPatients }}</p>
+                <div class="ml-3">
+                    <h3 class="text-sm font-semibold text-gray-700">Normal</h3>
+                    <p class="text-xl font-bold text-green-600">{{ $normalPatients }}</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Search and Filter -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
         <div class="flex items-center mb-4">
-            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
             </svg>
-            <h3 class="text-lg font-semibold text-gray-900">Filter Patients</h3>
+            <h3 class="text-sm font-semibold text-gray-900">Filter Patients</h3>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Search Patients</label>
-                <input type="text" id="searchPatients" placeholder="Search by name, barangay..." 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                <p class="text-xs text-gray-500 mt-1">Search by patient name or location</p>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Search</label>
+                <input type="text" id="searchPatients" placeholder="Search..." 
+                       class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Barangay</label>
-                <select id="barangayFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Barangays</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Barangay</label>
+                <select id="barangayFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
                     @foreach($barangays ?? [] as $barangay)
                         <option value="{{ $barangay }}">{{ $barangay }}</option>
                     @endforeach
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Filter by specific barangay</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nutrition Status</label>
-                <select id="nutritionFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Statuses</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                <select id="nutritionFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
                     <option value="normal">Normal</option>
-                    <option value="mild_malnutrition">Mild Malnutrition</option>
-                    <option value="moderate_malnutrition">Moderate Malnutrition</option>
-                    <option value="severe_malnutrition">Severe Malnutrition</option>
-                    <option value="not_assessed">Not Assessed</option>
+                    <option value="mild_malnutrition">Mild</option>
+                    <option value="moderate_malnutrition">Moderate</option>
+                    <option value="severe_malnutrition">Severe</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Based on latest assessment</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Age Group</label>
-                <select id="ageGroupFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Ages</option>
-                    <option value="0-6">0-6 months (Infants)</option>
-                    <option value="6-12">6-12 months</option>
-                    <option value="12-24">12-24 months (Toddlers)</option>
-                    <option value="24-60">24-60 months (Preschoolers)</option>
-                    <option value="60+">60+ months (School Age)</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Age</label>
+                <select id="ageGroupFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
+                    <option value="0-6">0-6m</option>
+                    <option value="6-12">6-12m</option>
+                    <option value="12-24">12-24m</option>
+                    <option value="24-60">24-60m</option>
+                    <option value="60+">60+m</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Filter by age in months</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
-                <select id="medicalFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Patients</option>
-                    <option value="tuberculosis">Has Tuberculosis</option>
-                    <option value="malaria">Has Malaria</option>
-                    <option value="congenital">Has Congenital Anomalies</option>
-                    <option value="edema">Has Edema</option>
-                    <option value="breastfeeding">Breastfeeding</option>
-                    <option value="4ps">4P's Beneficiary</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Medical</label>
+                <select id="medicalFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
+                    <option value="tuberculosis">TB</option>
+                    <option value="malaria">Malaria</option>
+                    <option value="congenital">Congenital</option>
+                    <option value="edema">Edema</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Filter by specific conditions</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                <select id="genderFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Genders</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Gender</label>
+                <select id="genderFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Filter by patient gender</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Admission Status</label>
-                <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">All Statuses</option>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Admission</label>
+                <select id="statusFilter" class="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">All</option>
                     <option value="admitted">Admitted</option>
                     <option value="discharged">Discharged</option>
                     <option value="pending">Pending</option>
                 </select>
-                <p class="text-xs text-gray-500 mt-1">Current admission status</p>
             </div>
         </div>
         <div class="mt-4 flex justify-end">
-            <button onclick="clearFilters()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500">
-                Clear All Filters
+            <button onclick="clearFilters()" class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                Clear Filters
             </button>
         </div>
     </div>
@@ -163,59 +153,59 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admission</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Household</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Admission</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Household</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="patientsTable">
                     @forelse($patients as $patient)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 py-3 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                        <span class="text-sm font-medium text-gray-700">{{ substr($patient->name ?? 'N/A', 0, 1) }}</span>
+                                <div class="flex-shrink-0 h-8 w-8">
+                                    <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <span class="text-xs font-medium text-gray-700">{{ substr($patient->name ?? 'N/A', 0, 1) }}</span>
                                     </div>
                                 </div>
-                                <div class="ml-4">
+                                <div class="ml-3">
                                     <div class="text-sm font-medium text-gray-900">{{ $patient->name ?? 'No Name' }}</div>
-                                    <div class="text-sm text-gray-500">{{ ucfirst($patient->sex ?? 'Unknown') }}</div>
+                                    <div class="text-xs text-gray-500">{{ ucfirst($patient->sex ?? 'Unknown') }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                             @if($patient->municipality || $patient->barangay)
-                                <div>{{ $patient->municipality ?? 'N/A' }}</div>
-                                <div class="text-gray-500">{{ $patient->barangay ?? ($patient->barangay->name ?? 'N/A') }}</div>
+                                <div class="text-xs">{{ $patient->municipality ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500">{{ $patient->barangay ?? ($patient->barangay->name ?? 'N/A') }}</div>
                             @else
-                                <div class="text-gray-400">Location not set</div>
+                                <div class="text-xs text-gray-400">Location not set</div>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $patient->age_months }} months<br>
-                            <span class="text-gray-500">({{ $patient->age_years }} years)</span>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div class="text-xs">{{ $patient->age_months }} months</div>
+                            <div class="text-xs text-gray-500">({{ $patient->age_years }} years)</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>{{ $patient->date_of_admission->format('M d, Y') }}</div>
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div class="text-xs">{{ $patient->date_of_admission->format('M d, Y') }}</div>
+                            <span class="px-1 inline-flex text-xs leading-4 font-semibold rounded-full 
                                 {{ $patient->admission_status === 'admitted' ? 'bg-green-100 text-green-800' : 
                                    ($patient->admission_status === 'discharged' ? 'bg-gray-100 text-gray-800' : 'bg-yellow-100 text-yellow-800') }}">
                                 {{ ucfirst($patient->admission_status) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>{{ $patient->total_household_members }} total</div>
-                            <div class="text-gray-500">{{ $patient->household_adults }}A, {{ $patient->household_children }}C</div>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                            <div class="text-xs">{{ $patient->total_household_members }} total</div>
+                            <div class="text-xs text-gray-500">{{ $patient->household_adults }}A, {{ $patient->household_children }}C</div>
                             @if($patient->is_4ps_beneficiary)
-                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">4P's</span>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">4P's</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 py-3 whitespace-nowrap">
                             @if($patient->lastAssessment)
                                 @php
                                     $status = $patient->lastAssessment->nutrition_status;
@@ -226,26 +216,26 @@
                                         'severe_malnutrition' => 'bg-red-100 text-red-800'
                                     ];
                                 @endphp
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
+                                <span class="px-1 inline-flex text-xs leading-4 font-semibold rounded-full {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-800' }}">
                                     {{ ucfirst(str_replace('_', ' ', $status)) }}
                                 </span>
                             @else
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                <span class="px-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-800">
                                     Not assessed
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
-                                <a href="{{ route('admin.patients.show', $patient) }}" class="text-green-600 hover:text-green-900">View</a>
-                                <button onclick="editPatient('{{ $patient->id }}')" class="text-blue-600 hover:text-blue-900">Edit</button>
-                                <button onclick="deletePatient('{{ $patient->id }}')" class="text-red-600 hover:text-red-900">Delete</button>
+                                <a href="{{ route('admin.patients.show', $patient) }}" class="text-green-600 hover:text-green-900 text-xs">View</a>
+                                <button onclick="editPatient('{{ $patient->id }}')" class="text-blue-600 hover:text-blue-900 text-xs">Edit</button>
+                                <button onclick="deletePatient('{{ $patient->id }}')" class="text-red-600 hover:text-red-900 text-xs">Delete</button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">No patients found</td>
+                        <td colspan="7" class="px-4 py-3 text-center text-gray-500 text-sm">No patients found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -255,8 +245,26 @@
 
     <!-- Pagination -->
     @if($patients->hasPages())
-    <div class="mt-6">
-        {{ $patients->links() }}
+    <div class="mt-6 bg-white rounded-lg shadow-lg p-4">
+        <div class="flex flex-col sm:flex-row justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-700">
+                    Showing {{ $patients->firstItem() ?? 0 }} to {{ $patients->lastItem() ?? 0 }} of {{ $patients->total() }} patients
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm text-gray-600">Per page:</label>
+                    <select onchange="changePerPage(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
+                        <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                        <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                {{ $patients->appends(request()->query())->links() }}
+            </div>
+        </div>
     </div>
     @endif
 </div>
@@ -495,6 +503,13 @@ function clearFilters() {
     if (status) document.getElementById('statusFilter').value = '';
 
     filterPatients(); // Apply filters after clearing
+}
+
+function changePerPage(perPage) {
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('per_page', perPage);
+    currentUrl.searchParams.delete('page'); // Reset to first page when changing per page
+    window.location.href = currentUrl.toString();
 }
 </script>
 @endsection

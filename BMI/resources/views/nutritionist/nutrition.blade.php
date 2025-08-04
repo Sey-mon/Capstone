@@ -26,7 +26,7 @@
                                 <select name="patient_id" id="patient_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50" required>
                                     <option value="">Select Patient</option>
                                     @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}">{{ $patient->name }} ({{ $patient->age }} years)</option>
+                                        <option value="{{ $patient->id }}" @if(request('patient_id') == $patient->id) selected @endif>{{ $patient->name }} ({{ $patient->age_months }} months)</option>
                                     @endforeach
                                 </select>
                             </div>
