@@ -1,16 +1,20 @@
-# Child Malnutrition Assessment System
+# Child Malnutrition Assessment System - FastAPI Backend
 
-A comprehensive Random Forest-based prescriptive analytics system for assessing malnutrition in children aged 0-5 years, following WHO guidelines and implementing the clinical decision flowchart for treatment recommendations.
+A comprehensive Random Forest-based prescriptive analytics system for assessing malnutrition in children aged 0-5 years, following WHO guidelines and implementing the clinical decision flowchart for treatment recommendations. Now with FastAPI backend and essential security features.
 
 ## 🎯 Overview
 
 This system provides:
+- **REST API endpoints** for all model functionalities
 - **Automated WHZ score calculation** based on WHO reference standards
 - **Random Forest prediction model** for malnutrition classification
 - **Treatment recommendations** following the clinical flowchart provided
-- **Interactive web interface** for single and batch assessments
-- **Flexible data import/export** capabilities
-- **Support for custom WHO charts** for enhanced accuracy
+- **Risk stratification** with multi-level assessment
+- **Uncertainty quantification** for prediction confidence
+- **Personalized recommendations** based on individual factors
+- **Batch processing** capabilities for multiple patients
+- **File upload support** (CSV, Excel, JSON)
+- **Security features** (API authentication, rate limiting, logging)
 
 ## 📊 Classification Categories
 
@@ -19,37 +23,6 @@ The system classifies children into the following nutritional status categories:
 1. **Normal** (WHZ ≥ -2)
 2. **Moderate Acute Malnutrition (MAM)** (-3 ≤ WHZ < -2)
 3. **Severe Acute Malnutrition (SAM)** (WHZ < -3 or presence of edema)
-
-## 📋 Required Data Fields
-
-### Basic Information
-- **name**: Child's name
-- **municipality**: City/Municipality
-- **number**: Patient/Child ID
-- **age_months**: Age in months (0-60)
-- **sex**: Male/Female
-- **date_of_admission**: Date of assessment
-
-### Household Information
-- **total_household**: Total number of household members
-- **adults**: Number of adults in household
-- **children**: Number of children in household
-- **twins**: 0 or 1 (indicating if child is a twin)
-
-### Socio-economic
-- **4ps_beneficiary**: Yes/No (Pantawid Pamilyang Pilipino Program beneficiary)
-
-### Anthropometric Measurements
-- **weight**: Weight in kilograms
-- **height**: Height in centimeters
-
-### Medical History
-- **breastfeeding**: Yes/No
-- **edema**: True/False
-- **tuberculosis**: Yes/No
-- **malaria**: Yes/No
-- **congenital_anomalies**: Yes/No
-- **other_medical_problems**: Yes/No
 
 ## 🚀 Quick Start
 
@@ -62,67 +35,104 @@ The system classifies children into the following nutritional status categories:
    pip install -r requirements.txt
    ```
 
-### Running the Application
+### Configuration
 
-1. **Start the web interface:**
-   ```bash
-   streamlit run app.py
+1. **Set up environment variables** (optional):
+   ```env
+   SECRET_KEY=your-super-secret-key-here
+   LARAVEL_API_KEY=your-laravel-api-key
+   MOBILE_API_KEY=mobile-app-specific-key
    ```
 
-2. **Open your browser** and navigate to `http://localhost:8501`
+### Running the API
 
-### Using the System
+1. **Start the FastAPI server:**
+   ```bash
+   python main.py
+   ```
+   or
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   ```
 
-#### Single Patient Assessment
-1. Navigate to "Single Patient Assessment"
-2. Fill in the patient information form
-3. Click "Assess Nutritional Status"
-4. Review the results and treatment recommendations
+2. **Access the API:**
+   - API Documentation: `http://localhost:8000/docs`
+   - Alternative docs: `http://localhost:8000/redoc`
+   - Health check: `http://localhost:8000/health`
 
-#### Batch Assessment
-1. Navigate to "Batch Assessment"
-2. Download the CSV template
-3. Fill in your patient data
-4. Upload the completed CSV file
-5. Click "Assess All Patients"
-6. Download the results
+### Laravel Integration
+
+See `LARAVEL_INTEGRATION_GUIDE.md` for complete integration instructions.
 
 ## 🏗️ System Architecture
 
 ```
 Treatment_Model_Random_Forest/
-├── malnutrition_model.py      # Core model and WHO calculator
-├── app.py                     # Streamlit web interface
-├── data_manager.py            # Data import/export utilities
-├── requirements.txt           # Required Python packages
-├── README.md                 # This documentation
-└── sample_data/              # Generated sample datasets
+├── main.py                      # FastAPI application with security
+├── malnutrition_model.py        # Core model and WHO calculator
+├── data_manager.py              # Data import/export utilities
+├── treatment_protocol_manager.py # Treatment protocol management
+├── model_enhancements.py        # Enhanced features (risk, uncertainty, etc.)
+├── requirements.txt             # Required Python packages
+├── malnutrition_model.pkl       # Trained model file
+├── treatment_protocols/         # Treatment protocol JSON files
+│   ├── who_standard.json
+│   ├── community_based.json
+│   └── hospital_intensive.json
+├── LARAVEL_INTEGRATION_GUIDE.md # Laravel integration guide
+├── security_guidelines.md       # Security implementation guide
+└── README.md                   # This documentation
 ```
 
-### Core Components
+## 📋 API Endpoints
 
-#### 1. WHO_ZScoreCalculator
-- Calculates Weight-for-Height Z-scores
-- Implements WHO reference standards
-- Supports both boys and girls
+### System Endpoints
+- `GET /` - API information and available endpoints
+- `GET /health` - Health check
 
-#### 2. MalnutritionRandomForestModel
-- Random Forest classifier for prediction
-- Feature preprocessing and encoding
-- Treatment recommendation engine
-- Model persistence (save/load)
+### Assessment Endpoints
+- `POST /assess/single` - Single patient assessment (with authentication)
+- `POST /assess/batch` - Batch assessment for multiple patients
+- `POST /assess/upload` - File upload for batch assessment
 
-#### 3. DataManager
-- Import/export multiple file formats (CSV, Excel, JSON)
-- Data validation and cleaning
-- WHO reference data management
-- Sample data generation
+### Enhanced Features
+- `POST /risk/stratify` - Risk stratification with multi-level assessment
+- `POST /predict/uncertainty` - Prediction with uncertainty quantification
+- `POST /recommendations/personalized` - Personalized recommendations
 
-#### 4. Streamlit Web App
-- Interactive patient assessment
-- Batch processing capabilities
-- Data visualization and analytics
-- Results export functionality
+### Model Management
+- `GET /model/info` - Model information and capabilities
+- `POST /model/train` - Retrain model with new data
+
+### Treatment Protocols
+- `GET /protocols` - Get available treatment protocols
+- `POST /protocols/set` - Set active treatment protocol
+
+### Data Management
+- `GET /data/template` - Get data template for patient assessment
+- `POST /data/validate` - Validate uploaded data file
+
+### Analytics
+- `GET /analytics/summary` - System analytics summary
+
+## 🔒 Security Features
+
+The system includes comprehensive security measures:
+
+### Authentication
+- **API Key Authentication** - Secure access with API keys
+- **Rate Limiting** - 10 requests per minute per endpoint
+- **Request Validation** - Input sanitization and validation
+
+### Monitoring
+- **Security Logging** - All API access logged with timestamps
+- **Request Size Limits** - 1MB maximum request size
+- **Slow Request Detection** - Automatic logging of requests >5 seconds
+
+### Production Ready
+- **HTTPS Support** - SSL certificate configuration ready
+- **CORS Configuration** - Cross-origin request handling
+- **Error Handling** - Comprehensive error responses
 
 ## 🔬 Model Details
 
@@ -170,19 +180,72 @@ The system follows the clinical decision flowchart and provides specific treatme
 - Standardization of categorical values
 - Missing data handling
 
-### Sample Data Template
-Download the template from the web interface or generate programmatically:
+## 📊 Example API Usage
 
-```python
-from data_manager import DataManager
-dm = DataManager()
-template = dm.create_data_template('template.xlsx')
+### Single Patient Assessment
+```bash
+curl -X POST "http://localhost:8000/assess/single" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test Child",
+    "age_months": 18,
+    "sex": "male",
+    "weight": 8.5,
+    "height": 76.0,
+    "municipality": "Manila",
+    "total_household": 4,
+    "adults": 2,
+    "children": 2,
+    "twins": 0,
+    "four_ps_beneficiary": "Yes",
+    "breastfeeding": "No",
+    "edema": false,
+    "tuberculosis": "No",
+    "malaria": "No",
+    "congenital_anomalies": "No",
+    "other_medical_problems": "No"
+  }'
+```
+
+### Batch Assessment
+```bash
+curl -X POST "http://localhost:8000/assess/batch" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "patients": [
+      {
+        "name": "Child 1",
+        "age_months": 24,
+        "sex": "female",
+        "weight": 10.2,
+        "height": 85.0,
+        "municipality": "Quezon City",
+        "total_household": 5,
+        "adults": 2,
+        "children": 3,
+        "twins": 0,
+        "four_ps_beneficiary": "No",
+        "breastfeeding": "Yes",
+        "edema": false,
+        "tuberculosis": "No",
+        "malaria": "No",
+        "congenital_anomalies": "No",
+        "other_medical_problems": "No"
+      }
+    ]
+  }'
+```
+
+### File Upload
+```bash
+curl -X POST "http://localhost:8000/assess/upload" \
+  -F "file=@patients_data.csv"
 ```
 
 ## 🎛️ Customization
 
 ### Adding Custom WHO Charts
-You can import your own WHO reference charts:
+You can import your own WHO reference charts through the data manager:
 
 ```python
 from data_manager import DataManager
@@ -191,46 +254,15 @@ dm.load_who_charts('custom_who_charts.xlsx')
 ```
 
 ### Model Retraining
-Retrain the model with new data:
+Retrain the model with new data via API:
 
-```python
-from malnutrition_model import MalnutritionRandomForestModel
-import pandas as pd
-
-# Load your data
-df = pd.read_csv('your_data.csv')
-
-# Initialize and train model
-model = MalnutritionRandomForestModel()
-model.train_model(df)
-model.save_model('updated_model.pkl')
-```
-
-## 📊 Example Usage
-
-### Python API
-```python
-from malnutrition_model import MalnutritionRandomForestModel
-
-# Initialize model
-model = MalnutritionRandomForestModel()
-
-# Single prediction
-patient_data = {
-    'name': 'Test Child',
-    'age_months': 18,
-    'sex': 'Male',
-    'weight': 8.5,
-    'height': 76.0,
-    'municipality': 'Manila',
-    '4ps_beneficiary': 'Yes',
-    # ... other fields
-}
-
-result = model.predict_single(patient_data)
-print(f"Status: {result['prediction']}")
-print(f"WHZ Score: {result['whz_score']}")
-print(f"Treatment: {result['recommendation']['treatment']}")
+```bash
+curl -X POST "http://localhost:8000/model/train" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "protocol_name": "who_standard",
+    "test_size": 0.2
+  }'
 ```
 
 ## 🚨 Important Notes
@@ -255,37 +287,38 @@ print(f"Treatment: {result['recommendation']['treatment']}")
 
 ### Common Issues
 
-1. **Import Errors**
-   - Check file format and column names
-   - Ensure data is within valid ranges
-   - Review sample template for format
+1. **Database Connection Error**
+   - Check MySQL server status
+   - Verify database credentials in `.env`
+   - Ensure database schema is created
 
-2. **Model Performance**
-   - Increase training data size
-   - Check for data quality issues
-   - Validate feature importance
+2. **Model Loading Error**
+   - Check if `malnutrition_model.pkl` exists
+   - Restart the API server
+   - Check model file permissions
 
-3. **Web Interface Issues**
-   - Restart Streamlit application
-   - Check browser compatibility
-   - Clear browser cache
+3. **API Response Errors**
+   - Validate request data format
+   - Check required fields
+   - Review API documentation at `/docs`
 
 ### Getting Help
-1. Check the console output for error messages
+1. Check the API logs for error messages
 2. Validate your data against the template
 3. Ensure all required packages are installed
-4. Review the sample data format
+4. Review the API documentation at `/docs`
 
 ## 📈 Future Enhancements
 
 ### Planned Features
-- [ ] Integration with full WHO reference tables
-- [ ] Multi-language support
-- [ ] Advanced reporting and analytics
-- [ ] Integration with health information systems
-- [ ] Mobile-responsive interface
+- [ ] Real-time assessment tracking
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app integration
 - [ ] Automated alert systems
-- [ ] Longitudinal tracking capabilities
+- [ ] Integration with health information systems
+- [ ] Multi-language support
+- [ ] Advanced reporting capabilities
+- [ ] Machine learning model versioning
 
 ### Contributing
 This system is designed for educational and research purposes. For production use in healthcare settings, additional validation and clinical testing would be required.
@@ -298,9 +331,10 @@ This project is intended for educational and research purposes. Please ensure co
 
 - WHO Child Growth Standards and Guidelines
 - Scikit-learn machine learning library
-- Streamlit for web interface
+- FastAPI for REST API framework
+- MySQL for database management
 - Plotly for interactive visualizations
 
 ---
 
-**Note**: This system implements the clinical decision flowchart provided and follows WHO guidelines for child malnutrition assessment. It should be used as a decision support tool in conjunction with professional clinical judgment.
+**Note**: This system implements the clinical decision flowchart provided and follows WHO guidelines for child malnutrition assessment. It should be used as a decision support tool in conjunction with professional clinical judgment. 
