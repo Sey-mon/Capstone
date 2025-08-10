@@ -19,7 +19,14 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'http://127.0.0.1:8081',  // FastAPI development server
+        'http://localhost:8081',   // FastAPI alternative localhost
+        'http://127.0.0.1:8081',  // Frontend development
+        'http://localhost:8081',   // Frontend alternative
+        'http://127.0.0.1:8081',  // React/Vue frontend
+        'http://localhost:8081',   // React/Vue alternative
+    ],
 
     'allowed_origins_patterns' => [],
 

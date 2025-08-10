@@ -93,11 +93,11 @@ class AssessmentController extends Controller
             'children' => isset($data['children']) ? (int) $data['children'] : null,
             
             // Boolean fields - must be true/false, not strings
-            'is_twin' => (bool) ($data['is_twin'] ?? false),
+            'twins' => (int) ($data['is_twin'] ?? false), // Convert boolean to 0/1 for FastAPI
             'edema' => (bool) ($data['edema'] ?? false),
             
             // Medical/Social fields - must be exactly "Yes" or "No" (not empty strings)
-            'fourps_beneficiary' => $this->normalizeYesNo($data['fourps_beneficiary'] ?? ''),
+            'four_ps_beneficiary' => $this->normalizeYesNo($data['fourps_beneficiary'] ?? ''),
             'breastfeeding' => $this->normalizeYesNo($data['breastfeeding'] ?? ''),
             'tuberculosis' => $this->normalizeYesNo($data['tuberculosis'] ?? ''),
             'malaria' => $this->normalizeYesNo($data['malaria'] ?? ''),
@@ -147,6 +147,165 @@ class AssessmentController extends Controller
     public function getProtocols(): JsonResponse
     {
         $result = $this->malnutritionService->getTreatmentProtocols();
+
+        return response()->json($result);
+    }
+
+    /**
+     * Get model information
+     */
+    public function getModelInfo(): JsonResponse
+    {
+        $result = $this->malnutritionService->getModelInfo();
+
+        return response()->json($result);
+    }
+
+    /**
+     * Batch assess multiple patients
+     */
+    public function batchAssess(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'patients' => 'required|array|min:1|max:100',
+            'patients.*.name' => 'required|string|max:255',
+            'patients.*.age_months' => 'required|numeric|min:0|max:60',
+            'patients.*.weight' => 'required|numeric|min:0.1|max:50',
+            'patients.*.height' => 'required|numeric|min:30|max:150',
+            'patients.*.sex' => 'required|in:Male,Female',
+        ]);
+
+        // Map each patient to FastAPI format
+        $fastApiPatients = array_map(function($patient) {
+            return $this->mapToFastApiFormat($patient);
+        }, $validatedData['patients']);
+
+        $result = $this->malnutritionService->batchAssess($fastApiPatients);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Batch assessment completed successfully',
+                'data' => $result['data']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Batch assessment failed',
+            'error' => $result['error']
+        ], 422);
+    }
+
+    /**
+     * Upload file for batch assessment
+     */
+    public function uploadFileAssess(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,xlsx,json|max:10240', // 10MB max
+            'file_type' => 'nullable|in:csv,xlsx,json'
+        ]);
+
+        $file = $request->file('file');
+        $fileType = $request->input('file_type', 'csv');
+
+        $result = $this->malnutritionService->uploadFileForAssessment($file, $fileType);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'File assessment completed successfully',
+                'data' => $result['data']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'File assessment failed',
+            'error' => $result['error']
+        ], 422);
+    }
+
+    /**
+     * Get uncertainty quantification for assessment
+     */
+    public function getUncertaintyQuantification(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'age_months' => 'required|numeric|min:0|max:60',
+            'weight' => 'required|numeric|min:0.1|max:50',
+            'height' => 'required|numeric|min:30|max:150',
+            'sex' => 'required|in:Male,Female',
+        ]);
+
+        $fastApiData = $this->mapToFastApiFormat($validatedData);
+        $result = $this->malnutritionService->getUncertaintyQuantification($fastApiData);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Uncertainty quantification completed successfully',
+                'data' => $result['data']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Uncertainty quantification failed',
+            'error' => $result['error']
+        ], 422);
+    }
+
+    /**
+     * Get personalized recommendations
+     */
+    public function getPersonalizedRecommendations(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'age_months' => 'required|numeric|min:0|max:60',
+            'weight' => 'required|numeric|min:0.1|max:50',
+            'height' => 'required|numeric|min:30|max:150',
+            'sex' => 'required|in:Male,Female',
+            'name' => 'nullable|string|max:255',
+            'municipality' => 'nullable|string|max:255',
+        ]);
+
+        $fastApiData = $this->mapToFastApiFormat($validatedData);
+        $result = $this->malnutritionService->getPersonalizedRecommendations($fastApiData);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Personalized recommendations generated successfully',
+                'data' => $result['data']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Personalized recommendations failed',
+            'error' => $result['error']
+        ], 422);
+    }
+
+    /**
+     * Validate patient data format
+     */
+    public function validatePatientData(Request $request): JsonResponse
+    {
+        $patientData = $request->all();
+        $result = $this->malnutritionService->validatePatientData($patientData);
+
+        return response()->json($result);
+    }
+
+    /**
+     * Get analytics summary
+     */
+    public function getAnalyticsSummary(): JsonResponse
+    {
+        $result = $this->malnutritionService->getAnalyticsSummary();
 
         return response()->json($result);
     }

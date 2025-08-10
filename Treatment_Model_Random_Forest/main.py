@@ -17,10 +17,12 @@ from datetime import datetime, date
 import logging
 from contextlib import asynccontextmanager
 import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 import time
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from dotenv import load_dotenv
 
 # Import model components
 from malnutrition_model import MalnutritionRandomForestModel, generate_sample_data
@@ -31,6 +33,9 @@ from model_enhancements import (
     calculate_environmental_risk, get_risk_based_recommendations, calculate_prediction_intervals,
     calculate_entropy, get_uncertainty_reason, generate_personalized_recommendations
 )
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -104,14 +109,22 @@ app.add_middleware(
 
 # Add rate limiting
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Custom rate limit handler
+def rate_limit_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": f"Rate limit exceeded: {str(exc)}"}
+    )
+
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
 # Security middleware
 @app.middleware("http")
 async def security_middleware(request: Request, call_next):
     # Log access attempt
     log_security_event("API_ACCESS", {
-        "ip": request.client.host,
+        "ip": request.client.host if request.client else "unknown",
         "endpoint": request.url.path,
         "method": request.method,
         "user_agent": request.headers.get("user-agent", "Unknown")
@@ -223,9 +236,9 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except jwt.ExpiredSignatureError:
+    except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.JWTError:
+    except InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
@@ -239,8 +252,21 @@ API_KEYS = {
 async def verify_api_key(request: Request):
     """Verify API key for simpler authentication"""
     api_key = request.headers.get("X-API-Key")
-    if not api_key or api_key not in API_KEYS.values():
+    
+    # Debug logging
+    logger.info(f"Received API key: {api_key}")
+    logger.info(f"Expected API keys: {list(API_KEYS.values())}")
+    
+    if not api_key:
+        raise HTTPException(status_code=401, detail="Missing API key")
+    
+    if api_key not in API_KEYS.values():
+        log_security_event("INVALID_API_KEY", {
+            "received_key": api_key[:10] + "..." if len(api_key) > 10 else api_key,
+            "ip": request.client.host if request.client else "unknown"
+        })
         raise HTTPException(status_code=401, detail="Invalid API key")
+    
     return {"api_key": api_key}
 
 # Dependency to get model instance
@@ -421,7 +447,7 @@ async def assess_uploaded_file(
     """
     try:
         # Validate file type
-        if not file.filename.lower().endswith(('.csv', '.xlsx', '.json')):
+        if not file.filename or not file.filename.lower().endswith(('.csv', '.xlsx', '.json')):
             raise HTTPException(status_code=400, detail="Unsupported file format")
         
         # Read file
@@ -606,7 +632,7 @@ async def train_model(
         
         return TrainingResponse(
             success=True,
-            accuracy=round(accuracy, 4),
+            accuracy=float(round(accuracy, 4)),
             cross_validation_score=round(cv_score, 4),
             feature_importance=feature_importance,
             training_samples=len(training_data),
@@ -677,6 +703,9 @@ async def validate_data(
     """
     try:
         # Read file
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No filename provided")
+        
         if file.filename.lower().endswith('.csv'):
             df = pd.read_csv(file.file)
         elif file.filename.lower().endswith('.xlsx'):
@@ -896,4 +925,7 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    # Use port 8080 to avoid conflict with Laravel (port 8000)
+    port = int(os.getenv('PORT', 8081))
+    host = os.getenv('HOST', '127.0.0.1')
+    uvicorn.run(app, host=host, port=port) 

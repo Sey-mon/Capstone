@@ -20,21 +20,24 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Malnutrition Assessment API
+// Malnutrition Assessment API - Public endpoints
 Route::prefix('malnutrition')->group(function () {
     Route::post('/assess', [AssessmentController::class, 'assess']);
+    Route::post('/assess/batch', [AssessmentController::class, 'batchAssess']);
+    Route::post('/assess/upload', [AssessmentController::class, 'uploadFileAssess']);
     Route::get('/health', [AssessmentController::class, 'healthCheck']);
     Route::get('/protocols', [AssessmentController::class, 'getProtocols']);
+    Route::get('/model-info', [AssessmentController::class, 'getModelInfo']);
+    Route::post('/uncertainty', [AssessmentController::class, 'getUncertaintyQuantification']);
+    Route::post('/recommendations/personalized', [AssessmentController::class, 'getPersonalizedRecommendations']);
+    Route::post('/data/validate', [AssessmentController::class, 'validatePatientData']);
+    Route::get('/analytics/summary', [AssessmentController::class, 'getAnalyticsSummary']);
 });
 
-// Add missing API routes for testing interface
+// Legacy endpoints for backward compatibility
 Route::get('/health', [AssessmentController::class, 'healthCheck']);
 Route::post('/assess', [AssessmentController::class, 'assess']);
-Route::get('/model-info', function() {
-    $service = app(\App\Services\MalnutritionService::class);
-    $result = $service->getModelInfo();
-    return response()->json($result);
-});
+Route::get('/model-info', [AssessmentController::class, 'getModelInfo']);
 
 // Protected API Routes
 Route::middleware('auth:sanctum')->group(function () {

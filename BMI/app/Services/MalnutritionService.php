@@ -9,12 +9,39 @@ use Exception;
 class MalnutritionService
 {
     protected $apiUrl;
+    protected $apiKey;
     protected $timeout;
+    protected $retryAttempts;
+    protected $retryDelay;
 
     public function __construct()
     {
-        $this->apiUrl = config('services.malnutrition.api_url', 'http://127.0.0.1:8080');
-        $this->timeout = config('services.malnutrition.timeout', 10); // Reduced timeout
+        $this->apiUrl = config('services.malnutrition.api_url', 'http://127.0.0.1:8081');
+        
+        // Use API key from config
+        $this->apiKey = config('services.malnutrition.api_key', '0mI4mQA975wCrFiDTIoj8UDOrFT0OtEqOKi4DhpRfOBdzch8HyKk58zieQ9I5F3j');
+        
+        $this->timeout = config('services.malnutrition.timeout', 30);
+        $this->retryAttempts = config('services.malnutrition.retry_attempts', 3);
+        $this->retryDelay = config('services.malnutrition.retry_delay', 1000);
+        
+        // Debug log
+        Log::info("MalnutritionService API Key: " . substr($this->apiKey, 0, 10) . "...");
+    }
+
+    /**
+     * Get HTTP client with authentication headers
+     */
+    private function getHttpClient()
+    {
+        return Http::timeout($this->timeout)
+            ->connectTimeout(5)
+            ->retry($this->retryAttempts, $this->retryDelay)
+            ->withHeaders([
+                'X-API-Key' => $this->apiKey,
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ]);
     }
 
     /**
@@ -23,10 +50,7 @@ class MalnutritionService
     public function healthCheck()
     {
         try {
-            $response = Http::timeout($this->timeout)
-                ->connectTimeout(5) // 5 second connection timeout
-                ->retry(2, 1000) // Retry 2 times with 1 second delay
-                ->get("{$this->apiUrl}/health");
+            $response = $this->getHttpClient()->get("{$this->apiUrl}/health");
 
             return $response->successful() ? $response->json() : false;
         } catch (Exception $e) {
@@ -66,15 +90,13 @@ class MalnutritionService
     public function assessPatient(array $patientData)
     {
         try {
-            $response = Http::timeout($this->timeout)
-                ->connectTimeout(5)
-                ->retry(2, 1000)
-                ->post("{$this->apiUrl}/assess", $patientData);
+            $response = $this->getHttpClient()
+                ->post("{$this->apiUrl}/assess/single", $patientData);
 
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'data' => $response->json()['data']
+                    'data' => $response->json() // FastAPI returns the data directly, not wrapped in 'data' key
                 ];
             }
 
@@ -102,8 +124,9 @@ class MalnutritionService
     public function batchAssess(array $patientsData)
     {
         try {
-            $response = Http::timeout($this->timeout * 2) // Longer timeout for batch
-                ->post("{$this->apiUrl}/batch-assess", [
+            $response = $this->getHttpClient()
+                ->timeout($this->timeout * 2) // Longer timeout for batch
+                ->post("{$this->apiUrl}/assess/batch", [
                     'patients' => $patientsData
                 ]);
 
@@ -136,7 +159,7 @@ class MalnutritionService
     public function getTreatmentProtocols()
     {
         try {
-            $response = Http::timeout($this->timeout)
+            $response = $this->getHttpClient()
                 ->get("{$this->apiUrl}/protocols");
 
             if ($response->successful()) {
@@ -167,8 +190,8 @@ class MalnutritionService
     public function getModelInfo()
     {
         try {
-            $response = Http::timeout($this->timeout)
-                ->get("{$this->apiUrl}/model-info");
+            $response = $this->getHttpClient()
+                ->get("{$this->apiUrl}/model/info");
 
             if ($response->successful()) {
                 return [
@@ -188,6 +211,164 @@ class MalnutritionService
             return [
                 'success' => false,
                 'error' => 'Model info connection failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Get uncertainty quantification for a patient assessment
+     */
+    public function getUncertaintyQuantification(array $patientData)
+    {
+        try {
+            $response = $this->getHttpClient()
+                ->post("{$this->apiUrl}/uncertainty/quantify", $patientData);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Failed to get uncertainty quantification'
+            ];
+
+        } catch (Exception $e) {
+            Log::error('Failed to get uncertainty quantification: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'error' => 'Uncertainty quantification failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Get personalized recommendations for a patient
+     */
+    public function getPersonalizedRecommendations(array $patientData)
+    {
+        try {
+            $response = $this->getHttpClient()
+                ->post("{$this->apiUrl}/recommendations/personalized", $patientData);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Failed to get personalized recommendations'
+            ];
+
+        } catch (Exception $e) {
+            Log::error('Failed to get personalized recommendations: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'error' => 'Personalized recommendations failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Upload file for batch assessment
+     */
+    public function uploadFileForAssessment($file, string $fileType = 'csv')
+    {
+        try {
+            $response = $this->getHttpClient()
+                ->attach('file', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
+                ->post("{$this->apiUrl}/assess/upload", [
+                    'file_type' => $fileType
+                ]);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'File upload failed'
+            ];
+
+        } catch (Exception $e) {
+            Log::error('File upload failed: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'error' => 'File upload connection failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Get analytics summary
+     */
+    public function getAnalyticsSummary()
+    {
+        try {
+            $response = $this->getHttpClient()
+                ->get("{$this->apiUrl}/analytics/summary");
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Failed to get analytics summary'
+            ];
+
+        } catch (Exception $e) {
+            Log::error('Failed to get analytics summary: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'error' => 'Analytics summary failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Validate patient data format
+     */
+    public function validatePatientData(array $patientData)
+    {
+        try {
+            $response = $this->getHttpClient()
+                ->post("{$this->apiUrl}/data/validate", $patientData);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Data validation failed'
+            ];
+
+        } catch (Exception $e) {
+            Log::error('Data validation failed: ' . $e->getMessage());
+            
+            return [
+                'success' => false,
+                'error' => 'Data validation connection failed: ' . $e->getMessage()
             ];
         }
     }
