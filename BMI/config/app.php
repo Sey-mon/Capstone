@@ -99,6 +99,18 @@ return [
 
     'key' => env('APP_KEY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | API Key for External Services
+    |--------------------------------------------------------------------------
+    |
+    | This key is used to authenticate requests from external services
+    | like the malnutrition assessment model API.
+    |
+    */
+
+    'api_key' => env('APP_API_KEY', '0mI4mQA975wCrFiDTIoj8UDOrFT0OtEqOKi4DhpRfOBdzch8HyKk58zieQ9I5F3j'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', env('APP_PREVIOUS_KEYS', ''))

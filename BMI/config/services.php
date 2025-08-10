@@ -13,6 +13,13 @@ return [
     |
     */
 
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'scheme' => 'https',
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
@@ -21,6 +28,23 @@ return [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Malnutrition Assessment API Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the FastAPI backend that handles ML predictions
+    | and treatment recommendations for malnutrition assessment.
+    |
+    */
+    'malnutrition' => [
+        'api_url' => env('MALNUTRITION_API_URL', 'http://127.0.0.1:8081'),
+        'api_key' => env('MALNUTRITION_API_KEY', '0mI4mQA975wCrFiDTIoj8UDOrFT0OtEqOKi4DhpRfOBdzch8HyKk58zieQ9I5F3j'),
+        'timeout' => env('MALNUTRITION_API_TIMEOUT', 30),
+        'retry_attempts' => env('MALNUTRITION_API_RETRY', 3),
+        'retry_delay' => env('MALNUTRITION_API_RETRY_DELAY', 1000),
     ],
 
     'resend' => [
@@ -32,11 +56,6 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
-    ],
-
-    'malnutrition' => [
-        'api_url' => env('MALNUTRITION_API_URL', 'http://127.0.0.1:8080'),
-        'timeout' => env('MALNUTRITION_API_TIMEOUT', 10),
     ],
 
     'nutrition_api' => [
