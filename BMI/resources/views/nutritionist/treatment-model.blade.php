@@ -117,7 +117,9 @@
                         </button>
                     </div>
                     <div id="protocolsContainer" class="hidden">
-                        <!-- Protocols will be displayed here -->
+                        <div id="protocolsContent">
+                            <!-- Protocols will be displayed here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -228,7 +230,9 @@
                         </button>
                     </div>
                     <div id="templateContainer" class="hidden">
-                        <!-- Template will be displayed here -->
+                        <div id="templateContent">
+                            <!-- Template will be displayed here -->
+                        </div>
                     </div>
                 </div>
             </div>

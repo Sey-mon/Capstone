@@ -17,7 +17,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased" data-user-role="{{ auth()->user()->role ?? 'guest' }}">
         <div class="flex min-h-screen bg-gray-100">
             <!-- Sidebar -->
             <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full top-0 left-0 z-30 flex flex-col">

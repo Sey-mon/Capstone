@@ -18,7 +18,7 @@ class TreatmentModelApiController extends Controller
     
     public function __construct()
     {
-        $this->pythonApiUrl = config('app.python_api_url', 'http://localhost:8000');
+        $this->pythonApiUrl = env('MALNUTRITION_API_URL', 'http://127.0.0.1:8081');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\TreatmentController;
 use App\Http\Controllers\PatientController;
@@ -22,7 +23,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Treatment Model API - Role-Based Endpoints
-Route::middleware(['auth:sanctum', 'verified'])->prefix('treatment-model')->group(function () {
+Route::middleware(['auth:web,sanctum', 'verified'])->prefix('treatment-model')->group(function () {
+    
+    // Debug endpoint
+    Route::get('/debug', function() {
+        return response()->json([
+            'message' => 'Debug endpoint working',
+            'user' => Auth::user() ? [
+                'id' => Auth::id(),
+                'role' => Auth::user()->role,
+                'name' => Auth::user()->name
+            ] : 'Not authenticated'
+        ]);
+    });
     
     // 👩‍⚕️ NUTRITIONIST & ADMIN ROLE ENDPOINTS
     Route::middleware(['role:nutritionist,admin'])->group(function () {

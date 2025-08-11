@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // CSRF token for API requests
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     
-    // API endpoints
-    const apiBase = '/api/treatment-model';
+    // API endpoints - use web routes based on user role
+    const userRole = document.body.dataset.userRole || 'nutritionist'; // Get from body data attribute
+    const apiBase = userRole === 'admin' ? '/admin/treatment-model-api' : '/nutritionist/treatment-model-api';
     
     // Utility functions
     function showLoading() {
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
-                    'Authorization': `Bearer ${localStorage.getItem('api_token') || ''}`
+                    'Accept': 'application/json'
                 }
             };
             
@@ -50,14 +51,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             const response = await fetch(apiBase + endpoint, options);
+            
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const responseText = await response.text();
+                throw new Error(`Server returned ${response.status}: ${response.statusText}. Response: ${responseText.substring(0, 200)}...`);
+            }
+            
             const result = await response.json();
             
             if (!response.ok) {
-                throw new Error(result.message || result.error || 'Request failed');
+                throw new Error(result.message || result.error || `Request failed with status ${response.status}`);
             }
             
             return result;
         } catch (error) {
+            if (error.name === 'SyntaxError') {
+                throw new Error('Server returned invalid response. Please check if you\'re logged in and have proper permissions.');
+            }
             throw error;
         } finally {
             hideLoading();
@@ -160,9 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
         loadProtocolsBtn.addEventListener('click', async () => {
             try {
                 const result = await makeApiRequest('/protocols');
-                displayResult('protocolsContainer', 'protocolsContainer', result);
+                displayResult('protocolsContainer', 'protocolsContent', result);
             } catch (error) {
-                displayResult('protocolsContainer', 'protocolsContainer', error, true);
+                displayResult('protocolsContainer', 'protocolsContent', error, true);
             }
         });
     }
@@ -198,9 +210,9 @@ document.addEventListener('DOMContentLoaded', function() {
         getTemplateBtn.addEventListener('click', async () => {
             try {
                 const result = await makeApiRequest('/data/template');
-                displayResult('templateContainer', 'templateContainer', result);
+                displayResult('templateContainer', 'templateContent', result);
             } catch (error) {
-                displayResult('templateContainer', 'templateContainer', error, true);
+                displayResult('templateContainer', 'templateContent', error, true);
             }
         });
     }
