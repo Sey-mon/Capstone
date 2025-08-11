@@ -46,6 +46,8 @@
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-lg font-bold mb-4">Quick Links</h2>
             <ul class="space-y-2">
+                <li><a href="{{ route('nutritionist.treatment-model') }}" class="text-green-600 hover:underline font-semibold">🤖 Treatment Model API</a></li>
+                <li><a href="{{ route('nutritionist.nutrition') }}" class="text-blue-600 hover:underline">Patient Assessments</a></li>
                 <li><a href="{{ route('nutritionist.inventory') }}" class="text-blue-600 hover:underline">Inventory</a></li>
                 <li><a href="{{ route('nutritionist.transactions.log') }}" class="text-blue-600 hover:underline">Inventory Log</a></li>
                 <li><a href="{{ route('nutritionist.reports') }}" class="text-blue-600 hover:underline">Reports</a></li>

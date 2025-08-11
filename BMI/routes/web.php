@@ -102,6 +102,28 @@ Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.'
     Route::get('/api-test', function () {
         return view('admin.api-test');
     })->name('api-test');
+    
+    // Treatment Model API Interface
+    Route::get('/treatment-model', function () {
+        return view('nutritionist.treatment-model');
+    })->name('treatment-model');
+    
+    // Treatment Model Web API Routes (for frontend AJAX calls)
+    Route::prefix('treatment-model-api')->name('treatment-model-api.')->group(function () {
+        Route::get('/health', [App\Http\Controllers\TreatmentModelApiController::class, 'healthCheck'])->name('health');
+        Route::get('/protocols', [App\Http\Controllers\TreatmentModelApiController::class, 'getProtocols'])->name('protocols');
+        Route::post('/assess/single', [App\Http\Controllers\TreatmentModelApiController::class, 'assessSingle'])->name('assess.single');
+        Route::post('/data/validate', [App\Http\Controllers\TreatmentModelApiController::class, 'validatePatientData'])->name('data.validate');
+        Route::post('/risk/stratify', [App\Http\Controllers\TreatmentModelApiController::class, 'riskStratification'])->name('risk.stratify');
+        Route::post('/predict/uncertainty', [App\Http\Controllers\TreatmentModelApiController::class, 'predictUncertainty'])->name('predict.uncertainty');
+        Route::post('/recommendations/personalized', [App\Http\Controllers\TreatmentModelApiController::class, 'personalizedRecommendations'])->name('recommendations.personalized');
+        Route::get('/data/template', [App\Http\Controllers\TreatmentModelApiController::class, 'getDataTemplate'])->name('data.template');
+        
+        // Admin-only routes
+        Route::get('/model/info', [App\Http\Controllers\TreatmentModelApiController::class, 'getModelInfo'])->name('model.info');
+        Route::post('/model/train', [App\Http\Controllers\TreatmentModelApiController::class, 'trainModel'])->name('model.train');
+        Route::get('/analytics/summary', [App\Http\Controllers\TreatmentModelApiController::class, 'getAnalyticsSummary'])->name('analytics.summary');
+    });
 });
 
 // Nutritionist Routes
@@ -125,6 +147,23 @@ Route::middleware(['auth', 'nutritionist', 'verified'])->prefix('nutritionist')-
     Route::get('/transactions', [App\Http\Controllers\NutritionistController::class, 'transactions'])->name('transactions');
     Route::post('/transactions', [App\Http\Controllers\NutritionistController::class, 'storeTransaction'])->name('transactions.store');
     Route::get('/transactions/log', [App\Http\Controllers\NutritionistController::class, 'inventoryLog'])->name('transactions.log');
+    
+    // Treatment Model API Interface
+    Route::get('/treatment-model', function () {
+        return view('nutritionist.treatment-model');
+    })->name('treatment-model');
+    
+    // Treatment Model Web API Routes (for frontend AJAX calls)
+    Route::prefix('treatment-model-api')->name('treatment-model-api.')->group(function () {
+        Route::get('/health', [App\Http\Controllers\TreatmentModelApiController::class, 'healthCheck'])->name('health');
+        Route::get('/protocols', [App\Http\Controllers\TreatmentModelApiController::class, 'getProtocols'])->name('protocols');
+        Route::post('/assess/single', [App\Http\Controllers\TreatmentModelApiController::class, 'assessSingle'])->name('assess.single');
+        Route::post('/data/validate', [App\Http\Controllers\TreatmentModelApiController::class, 'validatePatientData'])->name('data.validate');
+        Route::post('/risk/stratify', [App\Http\Controllers\TreatmentModelApiController::class, 'riskStratification'])->name('risk.stratify');
+        Route::post('/predict/uncertainty', [App\Http\Controllers\TreatmentModelApiController::class, 'predictUncertainty'])->name('predict.uncertainty');
+        Route::post('/recommendations/personalized', [App\Http\Controllers\TreatmentModelApiController::class, 'personalizedRecommendations'])->name('recommendations.personalized');
+        Route::get('/data/template', [App\Http\Controllers\TreatmentModelApiController::class, 'getDataTemplate'])->name('data.template');
+    });
 });
 
 // Nutritionist Application

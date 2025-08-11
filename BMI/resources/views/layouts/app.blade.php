@@ -17,7 +17,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased" data-user-role="{{ auth()->user()->role ?? 'guest' }}">
         <div class="flex min-h-screen bg-gray-100">
             <!-- Sidebar -->
             <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full top-0 left-0 z-30 flex flex-col">
@@ -40,6 +40,7 @@
                             <li><x-nav-link :href="route('admin.email-templates.index')" :active="request()->routeIs('admin.email-templates*')">Email Templates</x-nav-link></li>
                         @elseif(Auth::user()->isNutritionist())
                             <li><x-nav-link :href="route('nutritionist.dashboard')" :active="request()->routeIs('nutritionist.dashboard')">Dashboard</x-nav-link></li>
+                            <li><x-nav-link :href="route('nutritionist.treatment-model')" :active="request()->routeIs('nutritionist.treatment-model')" class="text-green-600">🤖 Treatment Model API</x-nav-link></li>
                             <li><x-nav-link :href="route('nutritionist.patients')" :active="request()->routeIs('nutritionist.patients*')">Patients</x-nav-link></li>
                             <li><x-nav-link :href="route('nutritionist.nutrition')" :active="request()->routeIs('nutritionist.nutrition*')">Nutrition</x-nav-link></li>
                             <li><x-nav-link :href="route('nutritionist.inventory')" :active="request()->routeIs('nutritionist.inventory*')">Inventory</x-nav-link></li>

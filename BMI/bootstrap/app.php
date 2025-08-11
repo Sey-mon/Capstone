@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'nutritionist' => \App\Http\Middleware\NutritionistMiddleware::class,
+            'role' => \App\Http\Middleware\RequireRole::class,
         ]);
         
         // Enable CORS for API requests
