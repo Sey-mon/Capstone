@@ -125,6 +125,11 @@ Route::middleware(['auth', 'nutritionist', 'verified'])->prefix('nutritionist')-
     Route::get('/transactions', [App\Http\Controllers\NutritionistController::class, 'transactions'])->name('transactions');
     Route::post('/transactions', [App\Http\Controllers\NutritionistController::class, 'storeTransaction'])->name('transactions.store');
     Route::get('/transactions/log', [App\Http\Controllers\NutritionistController::class, 'inventoryLog'])->name('transactions.log');
+    
+    // Treatment Model API Interface
+    Route::get('/treatment-model', function () {
+        return view('nutritionist.treatment-model');
+    })->name('treatment-model');
 });
 
 // Nutritionist Application

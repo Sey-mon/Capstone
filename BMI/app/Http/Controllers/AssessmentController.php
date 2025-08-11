@@ -76,7 +76,7 @@ class AssessmentController extends Controller
     {
         return [
             // Required fields with exact data types
-            'age_months' => (float) $data['age_months'], // Must be number, not string
+            'age_months' => (int) round($data['age_months']), // Must be integer for FastAPI
             'weight' => (float) $data['weight'],        // Must be number, not string
             'height' => (float) $data['height'],        // Must be number, not string  
             'sex' => $data['sex'],                      // Must be exactly "Male" or "Female"
@@ -87,10 +87,10 @@ class AssessmentController extends Controller
             'municipality' => $data['municipality'] ?? '',
             'assessment_date' => date('Y-m-d'), // Current date in YYYY-MM-DD format
             
-            // Household information as integers
-            'total_household' => isset($data['total_household']) ? (int) $data['total_household'] : null,
-            'adults' => isset($data['adults']) ? (int) $data['adults'] : null,
-            'children' => isset($data['children']) ? (int) $data['children'] : null,
+            // Household information as integers (FastAPI requires these to be provided)
+            'total_household' => isset($data['total_household']) ? (int) $data['total_household'] : 1,
+            'adults' => isset($data['adults']) ? (int) $data['adults'] : 1,
+            'children' => isset($data['children']) ? (int) $data['children'] : 1,
             
             // Boolean fields - must be true/false, not strings
             'twins' => (int) ($data['is_twin'] ?? false), // Convert boolean to 0/1 for FastAPI

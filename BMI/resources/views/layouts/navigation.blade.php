@@ -20,6 +20,7 @@
                     <li><x-nav-link :href="route('admin.email-templates.index')" :active="request()->routeIs('admin.email-templates*')">Email Templates</x-nav-link></li>
                 @elseif(Auth::user()->isNutritionist())
                     <li><x-nav-link :href="route('nutritionist.dashboard')" :active="request()->routeIs('nutritionist.dashboard')">Dashboard</x-nav-link></li>
+                    <li><x-nav-link :href="route('nutritionist.treatment-model')" :active="request()->routeIs('nutritionist.treatment-model')" class="text-green-600">🤖 Treatment Model API</x-nav-link></li>
                     <li><x-nav-link :href="route('nutritionist.patients')" :active="request()->routeIs('nutritionist.patients*')">Patients</x-nav-link></li>
                     <li><x-nav-link :href="route('nutritionist.nutrition')" :active="request()->routeIs('nutritionist.nutrition*')">Nutrition</x-nav-link></li>
                     <li><x-nav-link :href="route('nutritionist.inventory')" :active="request()->routeIs('nutritionist.inventory*')">Inventory</x-nav-link></li>

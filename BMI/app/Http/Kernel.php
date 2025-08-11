@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'nutritionist' => \App\Http\Middleware\NutritionistMiddleware::class,
         'api.key' => \App\Http\Middleware\ValidateApiKey::class,
+        'role' => \App\Http\Middleware\RequireRole::class,
     ];
 }
