@@ -165,13 +165,13 @@ class MalnutritionService
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'data' => $response->json()['data']
+                    'data' => $response->json() // FastAPI returns the protocols object directly
                 ];
             }
 
             return [
                 'success' => false,
-                'error' => 'Failed to load protocols'
+                'error' => 'Failed to load protocols: HTTP ' . $response->status()
             ];
 
         } catch (Exception $e) {
@@ -196,13 +196,13 @@ class MalnutritionService
             if ($response->successful()) {
                 return [
                     'success' => true,
-                    'data' => $response->json()['data']
+                    'data' => $response->json() // FastAPI returns the ModelInfo object directly
                 ];
             }
 
             return [
                 'success' => false,
-                'error' => 'Failed to get model info'
+                'error' => 'Failed to get model info: HTTP ' . $response->status()
             ];
 
         } catch (Exception $e) {
