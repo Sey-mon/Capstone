@@ -17,6 +17,11 @@ Route::get('/test', function () {
     return view('test-page');
 });
 
+Route::get('/test-model-info', function () {
+    $controller = new App\Http\Controllers\TreatmentModelApiController();
+    return $controller->getModelInfo();
+});
+
 Route::get('/setup', function () {
     return view('setup-database');
 });
@@ -98,11 +103,9 @@ Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.'
     Route::get('/email-templates/{emailTemplate}/preview', [App\Http\Controllers\Admin\EmailTemplateController::class, 'preview'])->name('email-templates.preview');
     Route::get('/email-templates/create-default', [App\Http\Controllers\Admin\EmailTemplateController::class, 'createDefault'])->name('email-templates.create-default');
 
-    // API Test Interface
-    Route::get('/api-test', function () {
-        return view('admin.api-test');
-    })->name('api-test');
-    
+    // API Test Page
+    Route::get('/api-test', [App\Http\Controllers\AdminController::class, 'apiTest'])->name('api-test');
+
     // Treatment Model API Interface
     Route::get('/treatment-model', function () {
         return view('nutritionist.treatment-model');

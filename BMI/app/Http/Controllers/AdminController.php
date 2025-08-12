@@ -553,4 +553,39 @@ class AdminController extends Controller
             'totalAssessments'
         ));
     }
+
+    /**
+     * Show the API test page
+     */
+    public function apiTest()
+    {
+        // Check if Python API is available
+        $apiStatus = $this->checkPythonApiStatus();
+        
+        return view('admin.api-test', compact('apiStatus'));
+    }
+    
+    /**
+     * Check if Python API is available
+     */
+    private function checkPythonApiStatus()
+    {
+        try {
+            $url = env('MALNUTRITION_API_URL', 'http://127.0.0.1:8081') . '/health';
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($url);
+            
+            return [
+                'available' => $response->successful(),
+                'status' => $response->status() ?? 'No response',
+                'demo_mode' => env('TREATMENT_MODEL_DEMO_MODE', false)
+            ];
+        } catch (\Exception $e) {
+            return [
+                'available' => false,
+                'status' => 'Connection failed',
+                'error' => $e->getMessage(),
+                'demo_mode' => env('TREATMENT_MODEL_DEMO_MODE', false)
+            ];
+        }
+    }
 }
